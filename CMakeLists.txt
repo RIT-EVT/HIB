@@ -61,7 +61,6 @@ add_library(${PROJECT_NAME} STATIC)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
-        src/dev/LED.cpp
         src/HIB.cpp
         )
 
