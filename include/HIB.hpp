@@ -1,9 +1,10 @@
 #pragma once
 
+
 namespace BOARD_NAME {
 
 /**
- * This is an example of a class for a board
+ * HIB header file
  */
 class BOARD_NAME {
 public:
