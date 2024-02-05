@@ -1,3 +1,3 @@
-#include <BOARD_NAME.hpp>
+#include <HIB.hpp>
 
-namespace BOARD_NAME {}
+namespace HIB {}
