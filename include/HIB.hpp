@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace BOARD_NAME {
 
 /**
@@ -11,4 +10,4 @@ public:
 private:
 };
 
-}
+}// namespace BOARD_NAME
