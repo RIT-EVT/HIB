@@ -2,5 +2,4 @@
 
 namespace HIB {
 
-
-} // namespace HIB
+}// namespace HIB

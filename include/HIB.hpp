@@ -1,6 +1,5 @@
 #pragma once
 
-
 namespace HIB {
 
 /**
@@ -11,4 +10,4 @@ public:
 private:
 };
 
-} // namespace HIB
+}// namespace HIB
