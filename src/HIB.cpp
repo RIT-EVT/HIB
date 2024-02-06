@@ -1,3 +1,6 @@
 #include <HIB.hpp>
 
-namespace HIB {}
+namespace HIB {
+
+
+} // namespace HIB

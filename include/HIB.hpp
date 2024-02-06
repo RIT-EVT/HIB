@@ -1,14 +1,14 @@
 #pragma once
 
 
-namespace BOARD_NAME {
+namespace HIB {
 
 /**
  * HIB header file
  */
-class BOARD_NAME {
+class HIB {
 public:
 private:
 };
 
-}
+} // namespace HIB
