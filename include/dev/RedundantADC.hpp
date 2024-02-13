@@ -17,6 +17,7 @@ public:
     };
 
     RedundantADC::Status process(uint32_t& val1, uint32_t& val2, uint32_t& val3);
+
 private:
     IO::ADC& adc0;
     IO::ADC& adc1;
