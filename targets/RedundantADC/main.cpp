@@ -29,7 +29,7 @@ int main() {
 
     while (1) {
         // Process ADC values
-        RedundantADC::RedundantADC::Status status = redundantADC.process(adc0, adc1, adc2, val1, val2, val3);
+        RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
 
         // Print ADC values
         if (status == RedundantADC::RedundantADC::Status::OK) {
