@@ -13,7 +13,6 @@ namespace RedundantADC {
  */
 class RedundantADC {
 public:
-
     /**
      * @brief Enum class representing the status of RedundantADC processing.
      */
@@ -49,6 +48,6 @@ private:
     IO::ADC& adc2; /**< Reference to the third ADC. */
 };
 
-} // namespace RedundantADC
+}// namespace RedundantADC
 
-#endif // REDUNDANT_ADC_HPP
+#endif// REDUNDANT_ADC_HPP

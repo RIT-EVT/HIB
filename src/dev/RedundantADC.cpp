@@ -48,4 +48,4 @@ RedundantADC::Status RedundantADC::process(uint32_t& val1, uint32_t& val2, uint3
     }
 }
 
-} // namespace RedundantADC
+}// namespace RedundantADC

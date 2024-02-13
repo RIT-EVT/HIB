@@ -6,53 +6,53 @@
 * It then compares the values to see if any of them match and prints the results.
 */
 
+#include <EVT/dev/RTCTimer.hpp>
 #include <EVT/io/ADC.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/manager.hpp>
 #include <dev/RedundantADC.hpp>
-#include <EVT/dev/RTCTimer.hpp>
 
 namespace IO = EVT::core::IO;
 namespace DEV = EVT::core::DEV;
 
 int main() {
-   // Initialize system
-   EVT::core::platform::init();
+    // Initialize system
+    EVT::core::platform::init();
 
-   // Setup UART
-   IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
+    // Setup UART
+    IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
 
-   // Setup ADC pins for throttle
-   IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
-   IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
-   IO::ADC& adc2 = IO::getADC<IO::Pin::PA_2>();
+    // Setup ADC pins for throttle
+    IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
+    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
+    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_2>();
 
-   // Create RedundantADC object
-   RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
+    // Create RedundantADC object
+    RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
 
-   // Variables to store ADC values
-   uint32_t val1, val2, val3;
+    // Variables to store ADC values
+    uint32_t val1, val2, val3;
 
-   uint32_t adc_read_count = 0;
-   // Setup RTC timer
-   DEV::RTC& clock = DEV::getRTC();
-   DEV::RTCTimer timer(clock, 1000);
+    uint32_t adc_read_count = 0;
+    // Setup RTC timer
+    DEV::RTC& clock = DEV::getRTC();
+    DEV::RTCTimer timer(clock, 1000);
 
-   while (1) {
-       if (adc_read_count >= 334) {
-           timer.stopTimer();
-           uart.printf("ADC read count: %d\r\n", adc_read_count);
-           uart.printf("Time taken: %d us\r\n", timer.getTime());
-       }
+    while (1) {
+        if (adc_read_count >= 334) {
+            timer.stopTimer();
+            uart.printf("ADC read count: %d\r\n", adc_read_count);
+            uart.printf("Time taken: %d us\r\n", timer.getTime());
+        }
 
-       // Process ADC values
-       RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
-       // Print ADC values
-       if (status == RedundantADC::RedundantADC::Status::OK) {
-           adc_read_count++;
-       } else {
-           adc_read_count++;
-       }
-   }
+        // Process ADC values
+        RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
+        // Print ADC values
+        if (status == RedundantADC::RedundantADC::Status::OK) {
+            adc_read_count++;
+        } else {
+            adc_read_count++;
+        }
+    }
 }
