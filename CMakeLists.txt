@@ -57,7 +57,10 @@ project(${BOARD_LIB_NAME}
         LANGUAGES CXX C
         )
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} STATIC
+        src/dev/RedundantADC.cpp
+        include/dev/RedundantADC.hpp
+        targets/RedundantADC/main.cpp)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE

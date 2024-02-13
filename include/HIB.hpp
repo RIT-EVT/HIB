@@ -1,12 +1,13 @@
 #pragma once
 
+#include <cstdint>
+#include <EVT/io/ADC.hpp>
+
 namespace HIB {
 
-/**
- * HIB header file
- */
 class HIB {
 public:
+
 private:
 };
 
