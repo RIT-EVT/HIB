@@ -1,13 +1,12 @@
 #pragma once
 
-#include <cstdint>
 #include <EVT/io/ADC.hpp>
+#include <cstdint>
 
 namespace HIB {
 
 class HIB {
 public:
-
 private:
 };
 
