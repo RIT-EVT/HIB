@@ -1,7 +1,7 @@
 #pragma once
 
-#include <cstdint>
 #include <EVT/io/ADC.hpp>
+#include <cstdint>
 
 namespace IO = EVT::core::IO;
 
@@ -10,8 +10,8 @@ namespace RedundantADC {
 class RedundantADC {
 public:
     enum class Status {
-        OK = 0, // no error
-        COMPARISON_ERROR = 1, // comparison error (none of the values match)
+        OK = 0,              // no error
+        COMPARISON_ERROR = 1,// comparison error (none of the values match)
     };
 
     RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2);
@@ -24,4 +24,3 @@ private:
 };
 
 }// namespace RedundantADC
-
