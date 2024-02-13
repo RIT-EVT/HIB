@@ -8,9 +8,9 @@ namespace RedundantADC {
 RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
 RedundantADC::Status RedundantADC::process(uint32_t& val1, uint32_t& val2, uint32_t& val3) {
-
     // main comparison logic
 
+    // Read ADC values
     uint32_t adc0ValueUint = static_cast<uint32_t>(adc0.read() * 1000);
     uint32_t adc1ValueUint = static_cast<uint32_t>(adc1.read() * 1000);
     uint32_t adc2ValueUint = static_cast<uint32_t>(adc2.read() * 1000);

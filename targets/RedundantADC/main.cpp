@@ -7,23 +7,23 @@
 #include <EVT/io/pin.hpp>
 #include <EVT/manager.hpp>
 #include <dev/RedundantADC.hpp>
+#include <EVT/dev/RTCTimer.hpp>
 
 namespace IO = EVT::core::IO;
+namespace DEV = EVT::core::DEV;
 
 int main() {
     // Initialize system
     EVT::core::platform::init();
 
+    // Setup UART
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
-
 
     // Setup ADC pins for throttle
 
     IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
-    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_0>();
-    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_0>();
-
-
+    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
+    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_2>();
 
     // Create RedundantADC object
     RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
@@ -31,21 +31,25 @@ int main() {
     // Variables to store ADC values
     uint32_t val1, val2, val3;
 
-
+    uint32_t adc_read_count = 0;
+    //setup RTC timer
+    DEV::RTC& clock = DEV::getRTC();
+    DEV::RTCTimer timer(clock, 1000);
 
     while (1) {
-        uart.printf("Reading ADC values\n\r");
+        if (adc_read_count >= 334){
+            timer.stopTimer();
+            uart.printf("ADC read count: %d\r\n", adc_read_count);
+            uart.printf("Time taken: %d us\r\n", timer.getTime());
+        }
 
         // Process ADC values
         RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
-
         // Print ADC values
         if (status == RedundantADC::RedundantADC::Status::OK) {
-            uart.printf("ADC0: %d, ADC1: %d, ADC2: %d\n\r", val1, val2, val3);
+            adc_read_count++;
         } else {
-            uart.printf("Comparison error\n\r");
+            adc_read_count++;
         }
-
-
     }
 }
