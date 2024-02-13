@@ -16,22 +16,17 @@ int main() {
 
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
 
-
     // Setup ADC pins for throttle
 
     IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
     IO::ADC& adc1 = IO::getADC<IO::Pin::PA_0>();
     IO::ADC& adc2 = IO::getADC<IO::Pin::PA_0>();
 
-
-
     // Create RedundantADC object
     RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
 
     // Variables to store ADC values
     uint32_t val1, val2, val3;
-
-
 
     while (1) {
         uart.printf("Reading ADC values\n\r");
@@ -45,7 +40,5 @@ int main() {
         } else {
             uart.printf("Comparison error\n\r");
         }
-
-
     }
 }
