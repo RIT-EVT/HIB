@@ -1,5 +1,5 @@
 ###############################################################################
-# Top level CMakeList for building the *EVT_HIB* source code
+# Top level CMakeList for building the HIB source code
 ###############################################################################
 cmake_minimum_required(VERSION 3.15)
 
