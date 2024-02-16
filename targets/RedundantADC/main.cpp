@@ -28,6 +28,13 @@ int main() {
     IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
     IO::ADC& adc2 = IO::getADC<IO::Pin::PA_2>();
 
+    // Set up ADC pins for braking
+    /*
+    IO::ADC& b_adc0 = IO::getADC<IO::Pin::PA_4>();
+    IO::ADC& b_adc1 = IO::getADC<IO::Pin::PA_5>();
+    IO::ADC& b_adc2 = IO::getADC<IO::Pin::PA_6>();
+    */
+
     // Create RedundantADC object
     RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
 
@@ -35,17 +42,18 @@ int main() {
     uint32_t val1, val2, val3;
 
     uint32_t adc_read_count = 0;
-    // Setup RTC timer
+
     DEV::RTC& clock = DEV::getRTC();
     DEV::RTCTimer timer(clock, 1000);
 
     while (1) {
+        // 334 is a read every 3ms (minimally required)
+        // 1000 is a read every 1ms (optimally fast)
         if (adc_read_count >= 334) {
             timer.stopTimer();
             uart.printf("ADC read count: %d\r\n", adc_read_count);
-            uart.printf("Time taken: %d us\r\n", timer.getTime());
+            uart.printf("Time taken: %d\r\n", timer.getTime());
         }
-
         // Process ADC values
         RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
         // Print ADC values

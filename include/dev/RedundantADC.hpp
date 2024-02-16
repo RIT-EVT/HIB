@@ -24,9 +24,9 @@ public:
     /**
      * @brief Constructs a RedundantADC object with the given ADC instances.
      *
-     * @param adc0 The first ADC instance.
-     * @param adc1 The second ADC instance.
-     * @param adc2 The third ADC instance.
+     * @param[in] adc0 The first ADC instance.
+     * @param[in] adc1 The second ADC instance.
+     * @param[in] adc2 The third ADC instance.
      */
     RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2);
 
@@ -35,9 +35,9 @@ public:
      *
      * This function reads values from three ADCs and checks for redundancy.
      *
-     * @param val1 Reference to the variable to store the value read from the first ADC.
-     * @param val2 Reference to the variable to store the value read from the second ADC.
-     * @param val3 Reference to the variable to store the value read from the third ADC.
+     * @param[in] val1 Reference to the variable to store the value read from the first ADC.
+     * @param[in] val2 Reference to the variable to store the value read from the second ADC.
+     * @param[in] val3 Reference to the variable to store the value read from the third ADC.
      * @return RedundantADC::Status The status of the processing.
      */
     RedundantADC::Status process(uint32_t& val1, uint32_t& val2, uint32_t& val3);
