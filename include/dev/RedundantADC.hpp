@@ -16,10 +16,10 @@ public:
      * @brief Enum class representing the status of RedundantADC processing.
      */
     enum class Status {
-        OK = 0,                  /**< No error. */
-        OFF_BY_ONE_ERROR = 1,    /**< The reading is off by 1*/
-        MARGIN_ERROR = 2,        /**< The reading is off by less than the specific margin*/
-        COMPARISON_ERROR = 3     /**< The readings do not match.*/
+        OK = 0,               /**< No error. */
+        OFF_BY_ONE_ERROR = 1, /**< The reading is off by 1*/
+        MARGIN_ERROR = 2,     /**< The reading is off by less than the specific margin*/
+        COMPARISON_ERROR = 3  /**< The readings do not match.*/
     };
 
     /**
