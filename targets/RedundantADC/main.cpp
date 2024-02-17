@@ -22,11 +22,15 @@ int main() {
 
     // Setup UART
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
+    uart.printf("UART initialized\r\n");
 
-    // Setup ADC pins for throttle
+
     IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
+    uart.printf("ADC0 initialized\r\n");
     IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
-    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_2>();
+    uart.printf("ADC1 initialized\r\n");
+    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_4>();
+    uart.printf("ADC2 initialized\r\n");
 
     // Set up ADC pins for braking
     /*
@@ -35,32 +39,27 @@ int main() {
     IO::ADC& b_adc2 = IO::getADC<IO::Pin::PA_6>();
     */
 
+
     // Create RedundantADC object
     RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
 
     // Variables to store ADC values
     uint32_t val1, val2, val3;
 
-    uint32_t adc_read_count = 0;
-
-    DEV::RTC& clock = DEV::getRTC();
-    DEV::RTCTimer timer(clock, 1000);
-
     while (1) {
-        // 334 is a read every 3ms (minimally required)
-        // 1000 is a read every 1ms (optimally fast)
-        if (adc_read_count >= 334) {
-            timer.stopTimer();
-            uart.printf("ADC read count: %d\r\n", adc_read_count);
-            uart.printf("Time taken: %d\r\n", timer.getTime());
-        }
         // Process ADC values
         RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
-        // Print ADC values
+
+        //check for statuses
         if (status == RedundantADC::RedundantADC::Status::OK) {
-            adc_read_count++;
-        } else {
-            adc_read_count++;
+            uart.printf("ADC0: %d mV, ADC1: %d mV, ADC2: %d mV\r\n", val1, val2, val3);
+        } else if (status == RedundantADC::RedundantADC::Status::OFF_BY_ONE_ERROR) {
+            uart.printf("One error detected\r\n");
+        } else if (status == RedundantADC::RedundantADC::Status::MARGIN_ERROR) {
+            uart.printf("Margin error detected\r\n");
+        } else if (status == RedundantADC::RedundantADC::Status::COMPARISON_ERROR) {
+            uart.printf("Comparison error detected\r\n");
         }
+
     }
 }

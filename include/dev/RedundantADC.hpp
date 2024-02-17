@@ -1,5 +1,4 @@
-#ifndef REDUNDANT_ADC_HPP
-#define REDUNDANT_ADC_HPP
+#pragma once
 
 #include <EVT/io/ADC.hpp>
 #include <cstdint>
@@ -17,8 +16,10 @@ public:
      * @brief Enum class representing the status of RedundantADC processing.
      */
     enum class Status {
-        OK = 0,              /**< No error. */
-        COMPARISON_ERROR = 1 /**< Comparison error (none of the values match). */
+        OK = 0,                  /**< No error. */
+        OFF_BY_ONE_ERROR = 1,    /**< The reading is off by 1*/
+        MARGIN_ERROR = 2,        /**< The reading is off by less than the specific margin*/
+        COMPARISON_ERROR = 3     /**< The readings do not match.*/
     };
 
     /**
@@ -49,5 +50,3 @@ private:
 };
 
 }// namespace RedundantADC
-
-#endif// REDUNDANT_ADC_HPP

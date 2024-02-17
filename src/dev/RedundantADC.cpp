@@ -31,13 +31,31 @@ RedundantADC::Status RedundantADC::process(uint32_t& val1, uint32_t& val2, uint3
     uint32_t adc1ValueUint = static_cast<uint32_t>(adc1.read() * 1000);
     uint32_t adc2ValueUint = static_cast<uint32_t>(adc2.read() * 1000);
 
-    if ((adc0ValueUint ^ adc1ValueUint) == 0 || (adc0ValueUint ^ adc2ValueUint) == 0 || (adc1ValueUint ^ adc2ValueUint) == 0) {
+    // Calculate differences
+    int32_t diff01 = adc0ValueUint - adc1ValueUint;
+    int32_t diff02 = adc0ValueUint - adc2ValueUint;
+    int32_t diff12 = adc1ValueUint - adc2ValueUint;
+
+    // Check for exact match
+    if (diff01 == 0 || diff02 == 0 || diff12 == 0) {
         val1 = adc0ValueUint;
         val2 = adc1ValueUint;
         val3 = adc2ValueUint;
         return RedundantADC::Status::OK;
+    } else if (diff01 == 1 || diff02 == 1 || diff12 == 1 || diff01 == -1 || diff02 == -1 || diff12 == -1) {
+        // Check for one error
+        return RedundantADC::Status::OFF_BY_ONE_ERROR;
     } else {
-        return RedundantADC::Status::COMPARISON_ERROR;
+        // Calculate percentage difference
+        uint32_t margin0 = (diff01 * 100) / adc0ValueUint;
+        uint32_t margin1 = (diff02 * 100) / adc0ValueUint;
+        uint32_t margin2 = (diff12 * 100) / adc1ValueUint;
+
+        if (margin0 < 5 || margin1 < 5 || margin2 < 5) {
+            return RedundantADC::Status::MARGIN_ERROR;
+        } else {
+            return RedundantADC::Status::COMPARISON_ERROR;
+        }
     }
 }
 
