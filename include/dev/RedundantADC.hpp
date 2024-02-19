@@ -19,7 +19,8 @@ public:
         OK = 0,                  /**< No error. */
         OFF_BY_ONE_ERROR = 1,    /**< The reading is off by 1*/
         MARGIN_ERROR = 2,        /**< The reading is off by less than the specific margin*/
-        COMPARISON_ERROR = 3     /**< The readings do not match.*/
+        COMPARISON_ERROR = 3,    /**< The readings do not match.*/
+        CAN_LOOPBACK_ERROR = 4   /**< CAN loopback data does not match.*/
     };
 
     /**

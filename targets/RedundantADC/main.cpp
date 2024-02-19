@@ -6,7 +6,6 @@
 * It then compares the values to see if any of them match and prints the results.
 */
 
-#include <EVT/dev/RTCTimer.hpp>
 #include <EVT/io/ADC.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
@@ -31,13 +30,6 @@ int main() {
     uart.printf("ADC1 initialized\r\n");
     IO::ADC& adc2 = IO::getADC<IO::Pin::PA_4>();
     uart.printf("ADC2 initialized\r\n");
-
-    // Set up ADC pins for braking
-    /*
-    IO::ADC& b_adc0 = IO::getADC<IO::Pin::PA_4>();
-    IO::ADC& b_adc1 = IO::getADC<IO::Pin::PA_5>();
-    IO::ADC& b_adc2 = IO::getADC<IO::Pin::PA_6>();
-    */
 
 
     // Create RedundantADC object
