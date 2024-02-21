@@ -1,7 +1,6 @@
 #pragma once
 
 #include <EVT/io/ADC.hpp>
-#include <cstdint>
 
 namespace IO = EVT::core::IO;
 
