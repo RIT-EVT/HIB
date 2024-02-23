@@ -40,7 +40,7 @@ int main() {
 
     while (1) {
         // Process ADC values
-        RedundantADC::RedundantADC::Status status = redundantADC.process(val1, val2, val3);
+        RedundantADC::RedundantADC::Status status = redundantADC.readVoltage(val1, val2, val3);
 
         //check for statuses
         if (status == RedundantADC::RedundantADC::Status::OK) {

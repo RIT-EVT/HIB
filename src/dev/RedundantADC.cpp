@@ -25,7 +25,7 @@ RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(a
  * @param[in] val3 Reference to the variable to store the value read from the third ADC.
  * @return RedundantADC::Status The status of the processing.
  */
-RedundantADC::Status RedundantADC::process(uint32_t& val1, uint32_t& val2, uint32_t& val3) {
+RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, uint32_t& val3) {
     // Read ADC values
     auto adc0ValueUint = static_cast<uint32_t>(adc0.read() * 1000);
     auto adc1ValueUint = static_cast<uint32_t>(adc1.read() * 1000);
