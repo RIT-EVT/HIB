@@ -40,8 +40,8 @@ int main() {
         // Process ADC values
         RedundantADC::RedundantADC::Status status = redundantADC.readVoltage(val1, val2, val3);
 
-        //check ADC Statuses
-        if (status == RedundantADC::RedundantADC::Status::OK) {
+        //check ADC Statuses0
+ 0       if (status == RedundantADC::RedundantADC::Status::OK) {
             uart.printf("ADC0: %d mV, ADC1: %d mV, ADC2: %d mV\r\n", val1, val2, val3);
         } else if (status == RedundantADC::RedundantADC::Status::OFF_BY_ONE_ERROR) {
             uart.printf("One error detected\r\n");

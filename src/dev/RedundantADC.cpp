@@ -39,13 +39,12 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, u
     int32_t diff12 = adc1ValueUint - adc2ValueUint;
 
     // Check for exact match
-    if (diff01 == 0 || diff02 == 0 || diff12 == 0) {
+    if (diff01 == 0 && diff02 == 0 && diff12 == 0) {
         val1 = adc0ValueUint;
         val2 = adc1ValueUint;
         val3 = adc2ValueUint;
         return RedundantADC::Status::OK;
     } else if (diff01 == 1 || diff02 == 1 || diff12 == 1 || diff01 == -1 || diff02 == -1 || diff12 == -1) {
-        // Check for one error
         return RedundantADC::Status::OFF_BY_ONE_ERROR;
     } else {
         // Calculate percentage difference
