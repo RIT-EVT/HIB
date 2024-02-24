@@ -29,9 +29,9 @@ RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(a
  */
 RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, uint32_t& val3) {
     // Read ADC values
-    auto adc0ValueUint = static_cast<uint32_t>(adc0.read() * 1000);
-    auto adc1ValueUint = static_cast<uint32_t>(adc1.read() * 1000);
-    auto adc2ValueUint = static_cast<uint32_t>(adc2.read() * 1000);
+    auto adc0ValueUint = static_cast<int32_t>(adc0.read() * 1000);
+    auto adc1ValueUint = static_cast<int32_t>(adc1.read() * 1000);
+    auto adc2ValueUint = static_cast<int32_t>(adc2.read() * 1000);
 
     // Calculate differences
     int32_t diff01 = adc0ValueUint - adc1ValueUint;
@@ -39,7 +39,7 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, u
     int32_t diff12 = adc1ValueUint - adc2ValueUint;
 
     // Check for exact match
-    if (diff01 == 0 && diff02 == 0 && diff12 == 0) {
+    if (diff01 == 0 && diff02 == 0) {
         val1 = adc0ValueUint;
         val2 = adc1ValueUint;
         val3 = adc2ValueUint;

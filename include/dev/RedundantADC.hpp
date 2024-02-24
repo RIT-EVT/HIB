@@ -37,7 +37,7 @@ public:
     RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2);
 
     /**
-     * Read voltage readingss from the ADCs and check for redundancy.
+     * Read voltage readings from the ADCs and check for redundancy.
      *
      * This function reads values from three ADCs and checks for redundancy.
      *
