@@ -49,9 +49,9 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, u
         return RedundantADC::Status::OFF_BY_ONE_ERROR;
     } else {
         // Calculate percentage difference
-        uint32_t margin0 = (diff01 * 100) / adc0ValueUint;
-        uint32_t margin1 = (diff02 * 100) / adc0ValueUint;
-        uint32_t margin2 = (diff12 * 100) / adc1ValueUint;
+        uint32_t margin0 = (diff01 * 100) / ((adc0ValueUint + adc1ValueUint) / 2);
+        uint32_t margin1 = (diff02 * 100) / ((adc0ValueUint + adc2ValueUint) / 2);
+        uint32_t margin2 = (diff12 * 100) / ((adc1ValueUint + adc2ValueUint) / 2);
 
         if (margin0 < MARGIN && margin1 < MARGIN && margin2 < MARGIN) {
             return RedundantADC::Status::MARGIN_ERROR;
