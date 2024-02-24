@@ -40,15 +40,17 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, u
 
     // Find maximum absolute difference manually
     int32_t max_diff = diff01;
-    if (diff02 > max_diff) max_diff = diff02;
-    if (diff12 > max_diff) max_diff = diff12;
+    if (diff02 > max_diff)
+        max_diff = diff02;
+    if (diff12 > max_diff)
+        max_diff = diff12;
 
-    if (max_diff == 0) { // Exact match
+    if (max_diff == 0) {// Exact match
         val1 = adc0ValueUint;
         val2 = adc1ValueUint;
         val3 = adc2ValueUint;
         return RedundantADC::Status::OK;
-    } else if (max_diff == 1 || max_diff == -1) { // Off by one error
+    } else if (max_diff == 1 || max_diff == -1) {// Off by one error
         return RedundantADC::Status::OFF_BY_ONE_ERROR;
     } else {
         // Calculate percentage difference
