@@ -3,6 +3,8 @@
 
 namespace IO = EVT::core::IO;
 
+constexpr uint32_t MARGIN = 5;
+
 namespace RedundantADC {
 
 /*
@@ -51,7 +53,7 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& val1, uint32_t& val2, u
         uint32_t margin1 = (diff02 * 100) / adc0ValueUint;
         uint32_t margin2 = (diff12 * 100) / adc1ValueUint;
 
-        if (margin0 < 5 || margin1 < 5 || margin2 < 5) {
+        if (margin0 < MARGIN && margin1 < MARGIN && margin2 < MARGIN) {
             return RedundantADC::Status::MARGIN_ERROR;
         } else {
             return RedundantADC::Status::COMPARISON_ERROR;
