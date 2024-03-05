@@ -17,7 +17,7 @@ public:
     enum Status {
         /**< No error. */
         OK = 0,
-        /**< The reading is off by 1*/
+        /**< The reading is off by more than 1 percent margin but less than the specified margin*/
         OFF_BY_ONE_ERROR = 1,
         /**< The reading is off by less than the specific margin*/
         MARGIN_ERROR = 2,
@@ -46,7 +46,7 @@ public:
      * @param[in] val3 Reference to the variable to store the value read from the third ADC.
      * @return RedundantADC::Status The status of the processing.
      */
-    RedundantADC::Status readVoltage(uint32_t& val1, uint32_t& val2, uint32_t& val3);
+    RedundantADC::Status readVoltage(uint32_t& return_val);
 
 private:
     /**< Reference to the first ADC. */
