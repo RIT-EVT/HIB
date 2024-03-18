@@ -4,7 +4,7 @@
 
 namespace IO = EVT::core::IO;
 
-namespace RedundantADC {
+namespace HIB::DEV {
 
 /**
  * This class allows processing readings from redundant ADCs and checking for errors.
@@ -15,15 +15,15 @@ public:
      * Enum class representing the status of RedundantADC processing.
      */
     enum Status {
-        /**< No error. */
+        /** No error. */
         OK = 0,
-        /**< The reading is off by more than 1 percent margin but less than the specified margin*/
+        /** The reading is off by more than 1 percent margin but less than the specified margin*/
         OFF_BY_ONE_ERROR = 1,
-        /**< The reading is off by less than the specific margin*/
+        /** The reading is off by less than the specific margin*/
         MARGIN_ERROR = 2,
-        /**< The readings do not match.*/
+        /** The readings do not match.*/
         COMPARISON_ERROR = 3,
-        /**< CAN loopback data does not match.*/
+        /** CAN loopback data does not match.*/
         CAN_LOOPBACK_ERROR = 4
     };
 
@@ -49,11 +49,11 @@ public:
     RedundantADC::Status readVoltage(uint32_t& return_val);
 
 private:
-    /**< Reference to the first ADC. */
+    /** Reference to the first ADC. */
     IO::ADC& adc0;
-    /**< Reference to the second ADC. */
+    /** Reference to the second ADC. */
     IO::ADC& adc1;
-    /**< Reference to the third ADC. */
+    /** Reference to the third ADC. */
     IO::ADC& adc2;
 };
 

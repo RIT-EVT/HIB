@@ -1,4 +1,4 @@
-/**
+/*
 *
 * This file demonstrates a basic sample of using the RedundantADC module.
 * The program initializes the system, sets up UART communication, configures ADC pins for throttle,
@@ -31,23 +31,23 @@ int main() {
     uart.printf("ADC2 initialized\r\n");
 
     // Create RedundantADC object
-    RedundantADC::RedundantADC redundantADC(adc0, adc1, adc2);
+    HIB::DEV::RedundantADC redundantADC(adc0, adc1, adc2);
 
     // Variables to store ADC values
     uint32_t return_val;
 
     while (1) {
         // Process ADC values
-        RedundantADC::RedundantADC::Status status = redundantADC.readVoltage(return_val);
+        HIB::DEV::RedundantADC::Status status = redundantADC.readVoltage(return_val);
 
         //check ADC Statuses0
-        if (status == RedundantADC::RedundantADC::Status::OK) {
+        if (status == HIB::DEV::RedundantADC::Status::OK) {
             uart.printf("Average Voltage Reading %d\r\n", return_val);
-        } else if (status == RedundantADC::RedundantADC::Status::OFF_BY_ONE_ERROR) {
+        } else if (status == HIB::DEV::RedundantADC::Status::OFF_BY_ONE_ERROR) {
             uart.printf("One error detected\r\n");
-        } else if (status == RedundantADC::RedundantADC::Status::MARGIN_ERROR) {
+        } else if (status == HIB::DEV::RedundantADC::Status::MARGIN_ERROR) {
             uart.printf("Margin error detected\r\n");
-        } else if (status == RedundantADC::RedundantADC::Status::COMPARISON_ERROR) {
+        } else if (status == HIB::DEV::RedundantADC::Status::COMPARISON_ERROR) {
             uart.printf("Comparison error detected\r\n");
         }
     }

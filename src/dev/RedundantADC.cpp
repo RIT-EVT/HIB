@@ -6,15 +6,11 @@ namespace IO = EVT::core::IO;
 constexpr uint32_t LOW_MARGIN = 1;
 constexpr uint32_t HIGH_MARGIN = 5;
 
-namespace RedundantADC {
+namespace HIB::DEV {
 
 /*
  * Constructs a RedundantADC object with the given ADC instances.
- *
- * @param[in] adc0 The first ADC instance.
- * @param[in] adc1 The second ADC instance.
- * @param[in] adc2 The third ADC instance.
- */
+*/
 RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
 /*
@@ -22,11 +18,6 @@ RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(a
  *
  * This function reads values from three ADCs, performs bitwise comparison,
  * and checks for redundancy among the readings.
- *
- * @param[out] val1 Reference to the variable to store the value read from the first ADC.
- * @param[out] val2 Reference to the variable to store the value read from the second ADC.
- * @param[out] val3 Reference to the variable to store the value read from the third ADC.
- * @return RedundantADC::Status The status of the processing.
  */
 RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Read ADC values
