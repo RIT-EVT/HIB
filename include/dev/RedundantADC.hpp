@@ -57,4 +57,4 @@ private:
     IO::ADC& adc2;
 };
 
-}// namespace RedundantADC
+}// namespace HIB::DEV
