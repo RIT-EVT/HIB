@@ -1,7 +1,6 @@
 #include <EVT/io/ADC.hpp>
-#include <dev/RedundantADC.hpp>
 #include <cmath>
-
+#include <dev/RedundantADC.hpp>
 
 namespace IO = EVT::core::IO;
 
@@ -9,7 +8,6 @@ constexpr uint32_t LOW_MARGIN = 1;
 constexpr uint32_t HIGH_MARGIN = 5;
 
 namespace HIB::DEV {
-
 
 RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
@@ -34,7 +32,6 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
 
     // Check for redundancy
     bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
-
 
     if (allUnderLow) {
         return_val = average;
