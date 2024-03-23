@@ -7,7 +7,7 @@ namespace IO = EVT::core::IO;
 namespace HIB::DEV {
 
 /**
- * This class allows processing readings from redundant ADCs and checking for errors.
+ * This class allows processing readings from redundant ADCs and checking for errors
  */
 class RedundantADC {
 public:
@@ -39,7 +39,7 @@ public:
      *
      * This function reads values from three ADCs and checks for redundancy.
      *
-     * @param[in] val1 Reference to the variable to store the value read from the first ADC.
+     * @param[out] return_val Reference to the variable to store the value read from the ADCs
      * @param[in] val2 Reference to the variable to store the value read from the second ADC.
      * @param[in] val3 Reference to the variable to store the value read from the third ADC.
      * @return RedundantADC::Status The status of the processing.
@@ -63,4 +63,4 @@ private:
     IO::ADC& adc2;
 };
 
-}// namespace RedundantADC
+}// namespace HIB::DEV

@@ -74,4 +74,4 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     return RedundantADC::Status::COMPARISON_ERROR;
 }
 
-}// namespace RedundantADC
+}// namespace HIB::DEV
