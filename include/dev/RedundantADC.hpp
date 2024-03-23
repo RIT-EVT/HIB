@@ -41,7 +41,7 @@ public:
      *
      * This function reads values from three ADCs and checks for redundancy.
      *
-     * @param[in] val1 Reference to the variable to store the value read from the first ADC.
+     * @param[out] return_val Reference to the variable to store the value read from the ADCs
      * @param[in] val2 Reference to the variable to store the value read from the second ADC.
      * @param[in] val3 Reference to the variable to store the value read from the third ADC.
      * @return RedundantADC::Status The status of the processing.
