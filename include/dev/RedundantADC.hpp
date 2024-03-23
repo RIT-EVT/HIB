@@ -9,6 +9,15 @@ namespace HIB::DEV {
 /**
  * This class allows processing readings from redundant ADCs and checking for errors
  */
+
+/**
+     * Function to calculate absolute value.
+     *
+     * @param[in] value The value to calculate the absolute value of.
+     * @return int32_t The absolute value of the input value.
+     */
+int32_t abs(int32_t value);
+
 class RedundantADC {
 public:
     /**
@@ -46,13 +55,7 @@ public:
      */
     RedundantADC::Status readVoltage(uint32_t& return_val);
 
-    /**
-     * Function to calculate absolute value.
-     *
-     * @param[in] value The value to calculate the absolute value of.
-     * @return int32_t The absolute value of the input value.
-     */
-    int32_t abs(int32_t value);
+
 
 private:
     /** Reference to the first ADC. */

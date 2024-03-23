@@ -8,11 +8,11 @@ constexpr uint32_t HIGH_MARGIN = 5;
 
 namespace HIB::DEV {
 
-RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
-
 int32_t abs(int32_t value) {
     return (value < 0) ? -value : value;
 }
+
+RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
 RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Read ADC values
