@@ -10,6 +10,10 @@ namespace HIB::DEV {
 
 RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
+int32_t abs(int32_t value) {
+    return (value < 0) ? -value : value;
+}
+
 RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Read ADC values
     int32_t adcValues[3];
@@ -19,11 +23,6 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
 
     // Calculate average of all ADC values
     uint32_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
-
-       // Function to calculate absolute value
-    int32_t abs(int32_t value) {
-        return (value < 0) ? -value : value;
-    }
 
     // Check for margin error
     bool adc0underLow = (abs(adcValues[0] - average) * 100 / average) < LOW_MARGIN;
