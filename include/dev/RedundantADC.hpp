@@ -55,8 +55,6 @@ public:
      */
     RedundantADC::Status readVoltage(uint32_t& return_val);
 
-
-
 private:
     /** Reference to the first ADC. */
     IO::ADC& adc0;
