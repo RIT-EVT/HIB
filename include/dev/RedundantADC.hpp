@@ -15,16 +15,14 @@ public:
      * Enum class representing the status of RedundantADC processing.
      */
     enum Status {
-        /** No error. */
+        /** No error */
         OK = 0,
-        /** The reading is off by more than 1 percent margin but less than the specified margin*/
+        /** The reading is off by more than 1 percent margin but less than the specified margin */
         OFF_BY_ONE_ERROR = 1,
-        /** The reading is off by less than the specific margin*/
+        /** The reading is off by less than the specific margin */
         MARGIN_ERROR = 2,
-        /** The readings do not match.*/
+        /** The readings do not match */
         COMPARISON_ERROR = 3,
-        /** CAN loopback data does not match.*/
-        CAN_LOOPBACK_ERROR = 4
     };
 
     /**
@@ -47,6 +45,14 @@ public:
      * @return RedundantADC::Status The status of the processing.
      */
     RedundantADC::Status readVoltage(uint32_t& return_val);
+
+    /**
+     * Function to calculate absolute value.
+     *
+     * @param[in] value The value to calculate the absolute value of.
+     * @return int32_t The absolute value of the input value.
+     */
+    int32_t abs(int32_t value);
 
 private:
     /** Reference to the first ADC. */

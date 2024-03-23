@@ -8,17 +8,8 @@ constexpr uint32_t HIGH_MARGIN = 5;
 
 namespace HIB::DEV {
 
-/*
- * Constructs a RedundantADC object with the given ADC instances.
-*/
 RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
-/*
- * Process readings from the ADCs and check for redundancy.
- *
- * This function reads values from three ADCs, performs bitwise comparison,
- * and checks for redundancy among the readings.
- */
 RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Read ADC values
     int32_t adcValues[3];
@@ -29,14 +20,19 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Calculate average of all ADC values
     uint32_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
 
-    // Check for margin error
-    bool adc0underLow = (adcValues[0] / average) < LOW_MARGIN;
-    bool adc1underLow = (adcValues[1] / average) < LOW_MARGIN;
-    bool adc2underLow = (adcValues[2] / average) < LOW_MARGIN;
+       // Function to calculate absolute value
+    int32_t abs(int32_t value) {
+        return (value < 0) ? -value : value;
+    }
 
-    bool adc0underHigh = (adcValues[0] / average) < HIGH_MARGIN;
-    bool adc1underHigh = (adcValues[1] / average) < HIGH_MARGIN;
-    bool adc2underHigh = (adcValues[2] / average) < HIGH_MARGIN;
+    // Check for margin error
+    bool adc0underLow = (abs(adcValues[0] - average) * 100 / average) < LOW_MARGIN;
+    bool adc1underLow = (abs(adcValues[1] - average) * 100 / average) < LOW_MARGIN;
+    bool adc2underLow = (abs(adcValues[2] - average) * 100 / average) < LOW_MARGIN;
+
+    bool adc0underHigh = (abs(adcValues[0] - average) * 100 / average) > HIGH_MARGIN;
+    bool adc1underHigh = (abs(adcValues[1] - average) * 100 / average) > HIGH_MARGIN;
+    bool adc2underHigh = (abs(adcValues[2] - average) * 100 / average) > HIGH_MARGIN;
 
     // Check for redundancy
     bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
@@ -46,8 +42,8 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
         return_val = average;
         return RedundantADC::Status::OK;
     } else if (allUnderHigh) {
-        return_val = 0;
-        return RedundantADC::Status::COMPARISON_ERROR;
+        return_val = average;
+        return RedundantADC::Status::MARGIN_ERROR;
     }
 
     // Off by one error check
@@ -62,7 +58,7 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
         return RedundantADC::Status::OFF_BY_ONE_ERROR;
     }
 
-    // Margin error check
+    // Margin error check (if only one ADC is under high margin)
     if (adc0underHigh) {
         return_val = adcValues[0];
         return RedundantADC::Status::MARGIN_ERROR;
@@ -74,7 +70,6 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
         return RedundantADC::Status::MARGIN_ERROR;
     }
 
-    // Default case
     return_val = 0;
     return RedundantADC::Status::COMPARISON_ERROR;
 }

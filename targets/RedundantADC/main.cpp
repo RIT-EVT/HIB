@@ -1,11 +1,3 @@
-/*
-*
-* This file demonstrates a basic sample of using the RedundantADC module.
-* The program initializes the system, sets up UART communication, configures ADC pins for throttle,
-* creates a RedundantADC object, and continuously reads ADC values from three ADCs.
-* It then compares the values to see if any of them match and prints the results.
-*/
-
 #include <EVT/io/ADC.hpp>
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
