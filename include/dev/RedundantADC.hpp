@@ -11,7 +11,7 @@ namespace HIB::DEV {
  */
 
 /**
-     * Function to calculate absolute value.
+     * Function to calculate absolute value. Helper
      *
      * @param[in] value The value to calculate the absolute value of.
      * @return int32_t The absolute value of the input value.

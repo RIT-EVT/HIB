@@ -8,6 +8,7 @@ constexpr uint32_t HIGH_MARGIN = 5;
 
 namespace HIB::DEV {
 
+//Helper Function to calculate absolute value
 int32_t abs(int32_t value) {
     return (value < 0) ? -value : value;
 }
