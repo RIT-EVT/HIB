@@ -18,7 +18,7 @@ public:
     enum Status {
         /** No error */
         OK = 0,
-        /** The reading is off by more than 1 percent margin but less than the specified margin */
+        /** One reading is significantly off the average */
         OFF_BY_ONE_ERROR = 1,
         /** Two readings are significantly off the average */
         MARGIN_ERROR = 2,
