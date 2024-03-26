@@ -9,7 +9,6 @@ namespace HIB::DEV {
 /**
  * This class allows processing readings from redundant ADCs and checking for errors
  */
-
 class RedundantADC {
 public:
     /**
