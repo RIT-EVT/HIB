@@ -20,7 +20,7 @@ public:
         OK = 0,
         /** The reading is off by more than 1 percent margin but less than the specified margin */
         OFF_BY_ONE_ERROR = 1,
-        /** The reading is off by less than the specific margin */
+        /** Two readings are significantly off the average */
         MARGIN_ERROR = 2,
         /** The readings do not match */
         COMPARISON_ERROR = 3,
