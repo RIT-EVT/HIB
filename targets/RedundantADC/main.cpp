@@ -16,11 +16,8 @@ int main() {
     uart.printf("UART initialized\r\n");
 
     IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
-    uart.printf("ADC0 initialized\r\n");
     IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
-    uart.printf("ADC1 initialized\r\n");
     IO::ADC& adc2 = IO::getADC<IO::Pin::PA_4>();
-    uart.printf("ADC2 initialized\r\n");
 
     // Create RedundantADC object
     HIB::DEV::RedundantADC redundantADC(adc0, adc1, adc2);
@@ -35,9 +32,9 @@ int main() {
         //check ADC Statuses0
         if (status == HIB::DEV::RedundantADC::Status::OK) {
             uart.printf("Average Voltage Reading %d\r\n", return_val);
-        } else if (status == HIB::DEV::RedundantADC::Status::OFF_BY_ONE_ERROR) {
+        } else if (status == HIB::DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
             uart.printf("One error detected\r\n");
-        } else if (status == HIB::DEV::RedundantADC::Status::MARGIN_ERROR) {
+        } else if (status == HIB::DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
             uart.printf("Margin error detected\r\n");
         } else if (status == HIB::DEV::RedundantADC::Status::COMPARISON_ERROR) {
             uart.printf("Comparison error detected\r\n");

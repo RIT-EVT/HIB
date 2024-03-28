@@ -28,9 +28,9 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     bool adc1underLow = (std::abs(adcValues[1] - average) * 100 / average) < LOW_MARGIN;
     bool adc2underLow = (std::abs(adcValues[2] - average) * 100 / average) < LOW_MARGIN;
 
-    bool adc0underHigh = (std::abs(adcValues[0] - average) * 100 / average) > HIGH_MARGIN;
-    bool adc1underHigh = (std::abs(adcValues[1] - average) * 100 / average) > HIGH_MARGIN;
-    bool adc2underHigh = (std::abs(adcValues[2] - average) * 100 / average) > HIGH_MARGIN;
+    bool adc0underHigh = (std::abs(adcValues[0] - average) * 100 / average) < HIGH_MARGIN;
+    bool adc1underHigh = (std::abs(adcValues[1] - average) * 100 / average) < HIGH_MARGIN;
+    bool adc2underHigh = (std::abs(adcValues[2] - average) * 100 / average) < HIGH_MARGIN;
 
     // Check for redundancy
     bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
@@ -44,25 +44,25 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Off by one error check
     if (adc0underHigh && adc1underLow && adc2underLow) {
         return_val = (adcValues[1] + adcValues[2]) / 2;
-        return RedundantADC::Status::OFF_BY_ONE_ERROR;
+        return RedundantADC::Status::PRECISION_MARGIN_EXCEEDED;
     } else if (adc0underLow && adc1underHigh && adc2underLow) {
         return_val = (adcValues[0] + adcValues[2]) / 2;
-        return RedundantADC::Status::OFF_BY_ONE_ERROR;
+        return RedundantADC::Status::PRECISION_MARGIN_EXCEEDED;
     } else if (adc0underLow && adc1underLow && adc2underHigh) {
         return_val = (adcValues[0] + adcValues[1]) / 2;
-        return RedundantADC::Status::OFF_BY_ONE_ERROR;
+        return RedundantADC::Status::PRECISION_MARGIN_EXCEEDED;
     }
 
     // Margin error check (if only one ADC is under high margin)
     if (adc0underHigh && adc1underHigh && adc2underLow) {
         return_val = adcValues[2];
-        return RedundantADC::Status::MARGIN_ERROR;
+        return RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED;
     } else if (adc0underHigh && adc1underLow && adc2underHigh) {
         return_val = adcValues[1];
-        return RedundantADC::Status::MARGIN_ERROR;
+        return RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED;
     } else if (adc0underLow && adc1underHigh && adc2underHigh) {
         return_val = adcValues[0];
-        return RedundantADC::Status::MARGIN_ERROR;
+        return RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED;
     }
 
     return_val = 0;
