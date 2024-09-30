@@ -5,7 +5,7 @@
 namespace HIB {
 
 /**
- * HIB header file
+ * HIB header file in Branch
  */
 class HIB {
 private:
