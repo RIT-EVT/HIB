@@ -21,9 +21,9 @@ int main() {
     IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
 
     // TODO: Change these to be the correct pins for the throttle and brake ADCs
-    IO::ADC& adc0 = IO::getADC<IO::Pin::PA_0>();
-    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_1>();
-    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_4>();
+    IO::ADC& adc0 = IO::getADC<IO::Pin::PC_0>();
+    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_5>();
+    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_6>();
 
     // Create RedundantADC object
     const HIB::DEV::RedundantADC throttleADC(adc0, adc1, adc2);
@@ -39,7 +39,7 @@ int main() {
     HIB::HIB hib = HIB::HIB(throttleADC, brakeADC);
 
     // ID is 0x0D0
-    IO::CANMessage transmit_message(0x0D0, 8, &hib.payload[0], false);
+    IO::CANMessage transmit_message(0x0D0, 8, hib.payload, false);
     IO::CANMessage received_message;
 
     // Try to join the network
