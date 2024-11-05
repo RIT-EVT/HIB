@@ -7,6 +7,69 @@
 #include <EVT/io/UART.hpp>
 #include <EVT/io/pin.hpp>
 #include <EVT/manager.hpp>
+#include <EVT/utils/time.hpp>
+#include <HIB.hpp>
+#include <dev/RedundantADC.hpp>
+
+namespace IO = EVT::core::IO;
+
+int main() {
+    // Initialize system
+    EVT::core::platform::init();
+    IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
+
+    // TODO: Change these to be the correct pins for the throttle and brake ADCs
+    IO::ADC& adc0 = IO::getADC<IO::Pin::PC_0>();
+    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_5>();
+    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_6>();
+
+    // Create RedundantADC object
+    const HIB::DEV::RedundantADC throttleADC(adc0, adc1, adc2);
+
+    IO::ADC& adc3 = IO::getADC<IO::Pin::PA_0>();
+    IO::ADC& adc4 = IO::getADC<IO::Pin::PA_1>();
+    IO::ADC& adc5 = IO::getADC<IO::Pin::PA_4>();
+
+    // Create RedundantADC object
+    const HIB::DEV::RedundantADC brakeADC(adc3, adc4, adc5);
+    // TODO: End of necessary ADC changes
+
+    HIB::HIB hib = HIB::HIB(throttleADC, brakeADC);
+
+    // MAIN loop
+    while (true) {
+        hib.process();
+        uint16_t adc7 = 0;
+        uint16_t adc8 = 0;
+        uint16_t adc9 = 0;
+        uint16_t adcAvg = hib.readV(adc7, adc8, adc9);
+        // Should most likely make variables to store total errors over the entire runtime to get a better picture
+        uart.printf("\r\n");
+        uart.printf("Throttle Voltage: %i mV\r\n", hib.payload[0] << 8 | hib.payload[1]);
+        uart.printf("Brake Voltage: %i mV\r\n", hib.payload[2] << 8 | hib.payload[3]);
+        uart.printf("No Errors: %i\r\n", hib.payload[4]);
+        uart.printf("Precision Errors: %i\r\n", hib.payload[5]);
+        uart.printf("Margin Errors: %i\r\n", hib.payload[6]);
+        uart.printf("Comparison Errors: %i\r\n", hib.payload[7]);
+        uart.printf("adc0 voltage: %i\r\n", adc7);
+        uart.printf("adc1 voltage: %i\r\n", adc8);
+        uart.printf("adc2 voltage: %i\r\n", adc9);
+        uart.printf("\r\n");
+        EVT::core::time::wait(1500);
+    }
+
+    return 0;
+}
+/**
+ * This is a basic sample of using the UART module. The program provides a
+ * basic echo functionality where the uart will write back whatever the user
+ * enters.
+ */
+
+/*
+#include <EVT/io/UART.hpp>
+#include <EVT/io/pin.hpp>
+#include <EVT/manager.hpp>
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
 
@@ -101,3 +164,4 @@ int main() {
 
     return 0;
 }
+*/

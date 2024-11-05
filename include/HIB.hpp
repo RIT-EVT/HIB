@@ -32,6 +32,8 @@ public:
 
     /// Set the positions of the throttle and brake
     void getPositions();
+
+    uint16_t readV(uint16_t& adc1, uint16_t& adc2, uint16_t& adc3);
 };
 
 }// namespace HIB

@@ -28,7 +28,7 @@ namespace HIB {
 
     // Get the position voltage from throttle and break
     void HIB::getPositions() {
-        throttlePosition = getVoltage(throttle);
+        // throttlePosition = getVoltage(throttle);
         brakePosition = getVoltage(brake);
     }
 
@@ -42,6 +42,13 @@ namespace HIB {
         payload[5] = precisionErrors;
         payload[6] = marginErrors;
         payload[7] = comparisonErrors;
+    }
+
+    uint16_t HIB::readV(uint16_t& adc1, uint16_t& adc2, uint16_t& adc3) {
+        adc1 = brake.adc0.read() * 1000;
+        adc2 = brake.adc1.read() * 1000;
+        adc3 = brake.adc2.read() * 1000;
+        return (adc1 + adc2 + adc3) / 3;
     }
 
 }// namespace HIB

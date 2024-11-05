@@ -62,7 +62,7 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
         return RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED;
     }
 
-    return_val = 0;
+    return_val = 1;
     return RedundantADC::Status::COMPARISON_ERROR;
 }
 
