@@ -1,7 +1,7 @@
-#include <HIB.hpp>
+/* #include <HIB.hpp>
 
 
-namespace HIB {
+namespace HIB_Soon {
     HIB::HIB(const DEV::RedundantADC& throttle, const DEV::RedundantADC& brake)
         : throttlePosition(0), brakePosition(0), noErrors(0), precisionErrors(0), marginErrors(0),
         comparisonErrors(0), throttle(throttle), brake(brake) {}
@@ -51,4 +51,4 @@ namespace HIB {
         return (adc1 + adc2 + adc3) / 3;
     }
 
-}// namespace HIB
+}// namespace HIB */

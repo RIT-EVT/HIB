@@ -1,12 +1,12 @@
-#pragma once
+/* #pragma once
 #include <cstdint>
 #include <dev/RedundantADC.hpp>
 
-namespace HIB {
+namespace HIB_Soon {
 /**
  * HIB header file in Branch
  */
-class HIB {
+class HIB_Nah {
 private:
     uint16_t throttlePosition;
     uint16_t brakePosition;
@@ -37,4 +37,4 @@ public:
     uint16_t readV(uint16_t& adc1, uint16_t& adc2, uint16_t& adc3);
 };
 
-}// namespace HIB
+}// namespace HIB */

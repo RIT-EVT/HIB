@@ -1,8 +1,7 @@
 #pragma once
+#include <core/io/ADC.hpp>
 
-#include <EVT/io/ADC.hpp>
-
-namespace IO = EVT::core::IO;
+namespace IO = core::io;
 
 namespace HIB::DEV {
 

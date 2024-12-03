@@ -1,15 +1,16 @@
-#include <EVT/io/ADC.hpp>
-#include <cmath>
 #include <dev/RedundantADC.hpp>
+#include <core/io/ADC.hpp>
+#include <cmath>
 
-namespace IO = EVT::core::IO;
+namespace IO = core::io;
 
 constexpr uint32_t LOW_MARGIN = 1;
 constexpr uint32_t HIGH_MARGIN = 5;
 
 namespace HIB::DEV {
 
-RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
+RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2)
+    : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
 RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     // Read ADC values
