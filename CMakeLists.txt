@@ -60,7 +60,10 @@ project(${BOARD_LIB_NAME}
         LANGUAGES CXX C
         )
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} STATIC
+        src/HIB_Soon.cpp
+        targets/REV3-HIB/main_Soon.cpp
+        include/HIB_Soon.h)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
