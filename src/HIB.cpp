@@ -4,21 +4,27 @@
 
 namespace HIB {
 
-HIB::HIB(const DEV::RedundantADC& throttle)
+HIB::HIB(DEV::RedundantADC& throttle)
     : throttle(throttle) {
-    // Clear payload
+    // Initialize payload to 0's
     for (int i = 0; i < payloadLength; i++) {
         payload[i] = 0;
     }
 }
 
 void HIB::process() {
-    HIB::setVoltage(throttle, &payload[0]);
+    HIB::readThrottleVoltage();
+    HIB::readBrakeVoltage();
 }
 
-void HIB::setVoltage(DEV::RedundantADC adc, uint8_t* volts) {
+void HIB::readThrottleVoltage() {
     uint32_t voltage = 0; // Voltage to be recieved in millivolts
-    DEV::RedundantADC::Status status = adc.readVoltage(voltage); // gets the errors and voltage from the ADC cluster
+    DEV::RedundantADC::Status status = throttle.readVoltage(voltage); // gets the errors and voltage from the ADC cluster
+
+    payload[0] += voltage;
+    payload[1] += voltage >> 8;
+
+    // Increment the status of each
     if (status == DEV::RedundantADC::Status::OK) {
         payload[4]++;
     } else if (status == DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
@@ -28,15 +34,14 @@ void HIB::setVoltage(DEV::RedundantADC adc, uint8_t* volts) {
     } else if (status == DEV::RedundantADC::Status::COMPARISON_ERROR) {
         payload[7]++;
     }
-
-    // Set the given byte pointer and the index after to the voltage given
-    // Bit-masking just in case
-    volts[0] = (voltage >> 24) & 0xFF;
-    volts[1] = (voltage >> 16) & 0xFF;
 }
 
-uint8_t* HIB::getPayload() {
-    return &payload[0];
+void HIB::readBrakeVoltage() {
+    uint32_t voltage = 0; // Voltage to be recieved in millivolts
+    DEV::RedundantADC::Status status = throttle.readVoltage(voltage); // gets the errors and voltage from the ADC cluster
+
+    payload[2] += voltage;
+    payload[3] += voltage >> 8;
 }
 
 }

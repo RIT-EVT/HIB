@@ -18,11 +18,11 @@ int main() {
     IO::ADC& adc2 = IO::getADC<IO::Pin::PA_6>();
 
     // Initialize HIB
-    const HIB::DEV::RedundantADC throttle(adc0, adc1, adc2);
+    HIB::DEV::RedundantADC throttle(adc0, adc1, adc2);
     HIB::HIB hib(throttle);
 
     // ID for HIB is 0x0D0
-    IO::CANMessage transmit_message(0x0D0, 8, hib.getPayload(), false);
+    IO::CANMessage transmit_message(0x0D0, 8, hib.payload, false);
     IO::CANMessage received_message;
 
     // Try to join the network
@@ -81,6 +81,21 @@ int main() {
             uart.printf("Precision Errors: %i\r\n", message_payload[5]);
             uart.printf("Margin Errors: %i\r\n", message_payload[6]);
             uart.printf("Comparison Errors: %i\r\n", message_payload[7]);
+
+            uart.printf("\r\nADC0 : %d mV\r\n", static_cast<uint32_t>(adc0.read() * 1000));
+            uart.printf("ADC0: %d%%\r\n", static_cast<uint32_t>(adc0.readPercentage() * 100));
+            uart.printf("ADC0 raw: %d\r\n", adc0.readRaw());
+            uart.printf("--------------------\r\n\r\n");
+
+            uart.printf("ADC1 : %d mV\r\n", static_cast<uint32_t>(adc1.read() * 1000));
+            uart.printf("ADC1: %d%%\r\n", static_cast<uint32_t>(adc1.readPercentage() * 100));
+            uart.printf("ADC1 raw: %d\r\n", adc1.readRaw());
+            uart.printf("--------------------\r\n\r\n");
+
+            uart.printf("ADC2 : %d mV\r\n", static_cast<uint32_t>(adc2.read() * 1000));
+            uart.printf("ADC2: %d%%\r\n", static_cast<uint32_t>(adc2.readPercentage() * 100));
+            uart.printf("ADC2 raw: %d\r\n", adc2.readRaw());
+            uart.printf("--------------------\r\n\r\n");
         }
         uart.printf("\r\n\r\n");
 
