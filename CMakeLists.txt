@@ -61,7 +61,9 @@ project(${BOARD_LIB_NAME}
         )
 
 add_library(${PROJECT_NAME} STATIC
-        src/HIB_Soon.cpp
+        include/dev/ADS8689IPWR.h
+        src/dev/ADS8689IPWR.cpp
+        targets/ADS8689IPWR/main.cpp
 )
 
 # Add sources
