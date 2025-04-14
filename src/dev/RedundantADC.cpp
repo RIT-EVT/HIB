@@ -1,18 +1,17 @@
-#include <dev/RedundantADC.hpp>
 #include <core/io/ADC.hpp>
 #include <cmath>
+#include <dev/RedundantADC.hpp>
 
-namespace IO = core::io;
+namespace io = core::io;
 
 constexpr uint32_t LOW_MARGIN = 1;
 constexpr uint32_t HIGH_MARGIN = 5;
 
 namespace HIB::DEV {
 
-RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2)
-    : adc0(adc0), adc1(adc1), adc2(adc2) {}
+RedundantADC::RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
-RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
+RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
     // Read ADC values
     int32_t adcValues[3];
     adcValues[0] = static_cast<int32_t>(adc0.read() * 1000);
@@ -63,7 +62,7 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
         return RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED;
     }
 
-    return_val = 1;
+    return_val = 0;
     return RedundantADC::Status::COMPARISON_ERROR;
 }
 

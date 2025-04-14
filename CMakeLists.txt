@@ -61,15 +61,16 @@ project(${BOARD_LIB_NAME}
         )
 
 add_library(${PROJECT_NAME} STATIC
-        include/dev/ADS8689IPWR.h
-        src/dev/ADS8689IPWR.cpp
-        targets/ADS8689IPWR/main.cpp
+        include/dev/ADS8689IPWR.hpp
+        include/dev/RedundantADC.hpp
+        include/HIB.hpp
 )
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
         src/HIB.cpp
         src/dev/RedundantADC.cpp
+        src/dev/ADS8689IPWR.cpp
         )
 
 ###############################################################################

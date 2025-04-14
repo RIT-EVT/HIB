@@ -11,3 +11,9 @@ Contains notable changes there were added, fixed, or removed in each release.
 * Build Board source as a library
 * Template to build arbitrary number of targets
 * Auto-generating documentation template
+
+## 0.2.0
+
+### Changes
+
+* ADS8689IPWR driver

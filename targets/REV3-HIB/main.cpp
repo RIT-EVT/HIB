@@ -1,32 +1,95 @@
+#include <core/io/GPIO.hpp>
+#include <core/io/SPI.hpp>
+#include <core/io/UART.hpp>
+#include <core/manager.hpp>
+#include <core/utils/time.hpp>
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
-#include <core/manager.hpp>
-#include <core/io/CAN.hpp>
-#include <core/io/ADC.hpp>
-#include <core/io/pin.hpp>
+#include <dev/ADS8689IPWR.hpp>
 
-namespace IO = core::io;
+namespace io   = core::io;
+namespace time = core::time;
+
+constexpr uint32_t SPI_SPEED = SPI_SPEED_500KHZ; // 500KHz
+constexpr uint8_t deviceCount = 3;
+
+#define ADS8689IPWR_RANGE_SEL_REG 0x14 // R/W Range selection register  ----
+
+io::GPIO* throttleDevices[deviceCount];
+io::GPIO* brakeDevices[deviceCount];
+
+void canIRQHandler(io::CANMessage& message, void* priv) {
+    io::UART* uart = (io::UART*) priv;
+    uart->printf("Message received\r\n");
+    uart->printf("Message id: 0x%X \r\n", message.getId());
+    uart->printf("Message length: %d\r\n", message.getDataLength());
+    uart->printf("Message contents: ");
+
+    uint8_t* message_payload = message.getPayload();
+    for (int i = 0; i < message.getDataLength(); i++) {
+        uart->printf("0x%02X ", message_payload[i]);
+    }
+    uart->printf("\r\n\r\n");
+}
 
 int main() {
+    // Initialize system
     core::platform::init();
 
-    // Initialize devices
-    IO::CAN& can = IO::getCAN<IO::Pin::PA_12, IO::Pin::PA_11>(true);
-    IO::UART& uart = IO::getUART<IO::Pin::UART_TX, IO::Pin::UART_RX>(9600);
-    IO::ADC& adc0 = IO::getADC<IO::Pin::PC_0>();
-    IO::ADC& adc1 = IO::getADC<IO::Pin::PA_5>();
-    IO::ADC& adc2 = IO::getADC<IO::Pin::PA_6>();
+    // Initialize UART
+    io::UART& uart = io::getUART<io::Pin::UART_TX, io::Pin::UART_RX>(9600);
 
-    // Initialize HIB
-    HIB::DEV::RedundantADC throttle(adc0, adc1, adc2);
-    HIB::HIB hib(throttle);
+    // Initialize CAN
+    io::CAN& can = io::getCAN<io::Pin::PA_12, io::Pin::PA_11>(true);
+
+    // Set up each device
+    brakeDevices[0] = &io::getGPIO<io::Pin::PB_9>(io::GPIO::Direction::OUTPUT);
+    brakeDevices[0]->writePin(io::GPIO::State::HIGH);
+
+    brakeDevices[1] = &io::getGPIO<io::Pin::PB_8>(io::GPIO::Direction::OUTPUT);
+    brakeDevices[1]->writePin(io::GPIO::State::HIGH);
+
+    brakeDevices[2] = &io::getGPIO<io::Pin::PB_7>(io::GPIO::Direction::OUTPUT);
+    brakeDevices[2]->writePin(io::GPIO::State::HIGH);
+
+    throttleDevices[0] = &io::getGPIO<io::Pin::PC_7>(io::GPIO::Direction::OUTPUT);
+    throttleDevices[0]->writePin(io::GPIO::State::HIGH);
+
+    throttleDevices[1] = &io::getGPIO<io::Pin::PC_8>(io::GPIO::Direction::OUTPUT);
+    throttleDevices[1]->writePin(io::GPIO::State::HIGH);
+
+    throttleDevices[2] = &io::getGPIO<io::Pin::PC_9>(io::GPIO::Direction::OUTPUT);
+    throttleDevices[2]->writePin(io::GPIO::State::HIGH);
+
+    // Create the two SPI clusters
+    io::SPI& spiThrottle = io::getSPI<io::Pin::PB_10, io::Pin::PB_15, io::Pin::PB_14>(throttleDevices, deviceCount);
+    io::SPI& spiBrake = io::getSPI<io::Pin::PC_10, io::Pin::PC_12, io::Pin::PC_11>(brakeDevices, deviceCount);
+
+    // Configure the systems
+    spiThrottle.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
+    spiBrake.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
+
+    // Create each ADS8689IPWR object
+    auto throttleADC1 = HIB::DEV::ADS8689IPWR(spiThrottle, 0);
+    auto throttleADC2 = HIB::DEV::ADS8689IPWR(spiThrottle, 1);
+    auto throttleADC3 = HIB::DEV::ADS8689IPWR(spiThrottle, 2);
+    auto brakeADC1 = HIB::DEV::ADS8689IPWR(spiBrake, 0);
+    auto brakeADC2 = HIB::DEV::ADS8689IPWR(spiBrake, 1);
+    auto brakeADC3 = HIB::DEV::ADS8689IPWR(spiBrake, 2);
+
+    // Create the Redundant ADC's
+    auto throttle = HIB::DEV::RedundantADC(throttleADC1, throttleADC2, throttleADC3);
+    auto brake = HIB::DEV::RedundantADC(brakeADC1, brakeADC2, brakeADC3);
+
+    // Finally create the HIB object to begin processing data
+    auto hib = HIB::HIB(throttle, brake);
 
     // ID for HIB is 0x0D0
-    IO::CANMessage transmit_message(0x0D0, 8, hib.payload, false);
-    IO::CANMessage received_message;
+    io::CANMessage transmit_message(0x0D0, 8, hib.payload, false);
+    io::CANMessage received_message;
 
     // Try to join the network
-    IO::CAN::CANStatus result = can.connect();
+    io::CAN::CANStatus result = can.connect();
 
     //  can.addCANFilter(0, 0, 13);  //This would create a filter that allows all messages through
     can.addCANFilter(0xD0, 0xFF0, 0);
@@ -35,7 +98,7 @@ int main() {
     // Begin CAN Tests
     uart.printf("Starting CAN testing\r\n");
 
-    if (result != IO::CAN::CANStatus::OK) {
+    if (result !=io::CAN::CANStatus::OK) {
         uart.printf("Failed to connect to CAN network\r\n");
         return 1;
     }
@@ -47,19 +110,19 @@ int main() {
 
         // Try to send the message
         result = can.transmit(transmit_message);
-        if (result != IO::CAN::CANStatus::OK) {
+        if (result !=io::CAN::CANStatus::OK) {
             uart.printf("Failed to transmit message\r\n");
             return 1;
         }
 
-        // Try to recieve the message
+        // Try to receive the message
         result = can.receive(&received_message, false);
-        if (result != IO::CAN::CANStatus::OK) {
+        if (result != io::CAN::CANStatus::OK) {
             uart.printf("Failed to receive message\r\n");
             continue;
         }
 
-        // Check if data was recieved
+        // Check if data was received
         if (received_message.getDataLength() == 0) {
             uart.printf("Message filtered out!");
         } else {
@@ -68,7 +131,7 @@ int main() {
             uart.printf("Message length: %d\r\n", received_message.getDataLength());
             uart.printf("Message contents: ");
 
-            uint8_t* message_payload = received_message.getPayload();
+            const uint8_t* message_payload = received_message.getPayload();
             for (int i = 0; i < received_message.getDataLength(); i++) {
                 uart.printf("0x%02X ", message_payload[i]);
             }
@@ -81,21 +144,6 @@ int main() {
             uart.printf("Precision Errors: %i\r\n", message_payload[5]);
             uart.printf("Margin Errors: %i\r\n", message_payload[6]);
             uart.printf("Comparison Errors: %i\r\n", message_payload[7]);
-
-            uart.printf("\r\nADC0 : %d mV\r\n", static_cast<uint32_t>(adc0.read() * 1000));
-            uart.printf("ADC0: %d%%\r\n", static_cast<uint32_t>(adc0.readPercentage() * 100));
-            uart.printf("ADC0 raw: %d\r\n", adc0.readRaw());
-            uart.printf("--------------------\r\n\r\n");
-
-            uart.printf("ADC1 : %d mV\r\n", static_cast<uint32_t>(adc1.read() * 1000));
-            uart.printf("ADC1: %d%%\r\n", static_cast<uint32_t>(adc1.readPercentage() * 100));
-            uart.printf("ADC1 raw: %d\r\n", adc1.readRaw());
-            uart.printf("--------------------\r\n\r\n");
-
-            uart.printf("ADC2 : %d mV\r\n", static_cast<uint32_t>(adc2.read() * 1000));
-            uart.printf("ADC2: %d%%\r\n", static_cast<uint32_t>(adc2.readPercentage() * 100));
-            uart.printf("ADC2 raw: %d\r\n", adc2.readRaw());
-            uart.printf("--------------------\r\n\r\n");
         }
         uart.printf("\r\n\r\n");
 

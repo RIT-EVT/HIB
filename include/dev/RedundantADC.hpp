@@ -1,12 +1,15 @@
 #pragma once
-#include <core/io/ADC.hpp>
 
-namespace IO = core::io;
+#include <dev/ADS8689IPWR.hpp>
+
+namespace io = core::io;
 
 namespace HIB::DEV {
+
 /**
  * This class allows processing readings from redundant ADCs and checking for errors
  */
+
 class RedundantADC {
 public:
     /**
@@ -30,7 +33,7 @@ public:
      * @param[in] adc1 The second ADC instance.
      * @param[in] adc2 The third ADC instance.
      */
-    RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2);
+    RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2);
 
     /**
      * Read voltage readings from the ADCs and check for redundancy.
@@ -42,14 +45,15 @@ public:
      * @param[in] val3 Reference to the variable to store the value read from the third ADC.
      * @return RedundantADC::Status The status of the processing.
      */
-    RedundantADC::Status readVoltage(uint32_t& return_val);
+    RedundantADC::Status read(uint32_t& return_val);
 
+private:
     /** Reference to the first ADC. */
-    IO::ADC& adc0;
+    ADS8689IPWR& adc0;
     /** Reference to the second ADC. */
-    IO::ADC& adc1;
+    ADS8689IPWR& adc1;
     /** Reference to the third ADC. */
-    IO::ADC& adc2;
+    ADS8689IPWR& adc2;
 };
 
 }// namespace HIB::DEV
