@@ -1,6 +1,5 @@
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
-#include <stdint.h>
 
 namespace HIB {
 
@@ -18,7 +17,7 @@ void HIB::process() {
 }
 
 void HIB::readThrottleVoltage() {
-    uint32_t voltage = 0; // Voltage to be recieved in millivolts
+    uint32_t voltage = 0; // Voltage to be received in millivolts
     DEV::RedundantADC::Status status = throttle.read(voltage); // gets the errors and voltage from the ADC cluster
 
     payload[0] += voltage;
@@ -27,13 +26,6 @@ void HIB::readThrottleVoltage() {
     // Increment the status of each
     if (status == DEV::RedundantADC::Status::OK) {
         payload[4]++;
-    } else if (status == DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
-        payload[5]++;
-    } else if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
-        payload[6]++;
-    } else if (status == DEV::RedundantADC::Status::COMPARISON_ERROR) {
-        payload[7]++;
-    }
 }
 
 void HIB::readBrakeVoltage() {

@@ -1,4 +1,5 @@
 #include <dev/ADS8689IPWR.hpp>
+#include <core/utils/log.hpp>
 
 namespace HIB::DEV {
 
@@ -24,20 +25,20 @@ ADS8689IPWR::ADS8689IPWR(io::SPI& spi, const uint8_t deviceNumber) : spi(spi), d
 }
 
 uint16_t ADS8689IPWR::read() {
+    uint8_t NOP[4] = {0x0, 0x0, 0x0, 0x0};
     uint8_t bytes[4];
-    uint16_t voltage;
+    uint32_t voltage;
 
     spi.startTransmission(deviceNumber);
     // NOP command
-    spi.write(0b0);
-    spi.write(0b0);
-    spi.write(0b0);
-    spi.write(0b0);
     spi.read(bytes, 4);
     spi.endTransmission(deviceNumber);
 
-    voltage = bytes[2] << 8 | bytes[3];
-    voltage *= voltage * 12288 / 65536;
+    voltage = bytes[0] << 8 | bytes[1];
+    voltage = voltage * 12288 / 65536;
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "byte0 = %x", bytes[0]);
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "byte1 = %x", bytes[1]);;
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "voltage = %u", voltage);
     return voltage;
 }
 

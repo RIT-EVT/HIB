@@ -1,16 +1,18 @@
+#include <HIB.hpp>
+#include <core/dev/LED.hpp>
 #include <core/io/GPIO.hpp>
 #include <core/io/SPI.hpp>
 #include <core/io/UART.hpp>
 #include <core/manager.hpp>
+#include <core/utils/log.hpp>
 #include <core/utils/time.hpp>
-#include <HIB.hpp>
-#include <dev/RedundantADC.hpp>
 #include <dev/ADS8689IPWR.hpp>
+#include <dev/RedundantADC.hpp>
 
 namespace io   = core::io;
 namespace time = core::time;
 
-constexpr uint32_t SPI_SPEED = SPI_SPEED_4MHZ; // 500KHz
+constexpr uint32_t SPI_SPEED = SPI_SPEED_500KHZ; // 500KHz
 constexpr uint8_t deviceCount = 3;
 
 io::GPIO* throttleDevices[deviceCount];
@@ -22,6 +24,8 @@ int main() {
 
     // Initialize UART
     io::UART& uart = io::getUART<io::Pin::UART_TX, io::Pin::UART_RX>(9600);
+    core::log::LOGGER.setUART(&uart);
+    core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
 
     // Set up each device
     brakeDevices[0] = &io::getGPIO<io::Pin::PB_9>(io::GPIO::Direction::OUTPUT);
