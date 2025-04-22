@@ -1,41 +1,33 @@
-#include <dev/ADS8689IPWR.hpp>
+#include "../../libs/EVT-core/samples/canopen/canopen_sample/TestCanNode.hpp"
+
 #include <core/utils/log.hpp>
+#include <dev/ADS8689IPWR.hpp>
 
 namespace HIB::DEV {
 
-
 ADS8689IPWR::ADS8689IPWR(io::SPI& spi, const uint8_t deviceNumber) : spi(spi), deviceNumber(deviceNumber) {
-    // Pull CS low
+    uint8_t message[4] = {HALF_WORD_WRITE, RANGE_SEL_REG, EMPTY_BYTE, TWELVE_VOLT_SCALER};
     spi.startTransmission(deviceNumber);
-    spi.write(0b11010000);
-    spi.write(RANGE_SEL_REG);
-    spi.write(0b00000000);
-    spi.write(TWELVE_VOLT_SCALER);
-    // Pull CS high
+    spi.write(message, 4);
     spi.endTransmission(deviceNumber);
 
-    // begin the conversion
+    // Begin the conversion with a NOP command
+    uint8_t nop[4] = NOP;
     spi.startTransmission(deviceNumber);
-    // NOP command
-    spi.write(0b0);
-    spi.write(0b0);
-    spi.write(0b0);
-    spi.write(0b0);
+    spi.write(nop, 4);
     spi.endTransmission(deviceNumber);
 }
 
 uint16_t ADS8689IPWR::read() {
-    uint8_t NOP[4] = {0x0, 0x0, 0x0, 0x0};
     uint8_t bytes[4];
-    uint32_t voltage;
-
     spi.startTransmission(deviceNumber);
-    // NOP command
     spi.read(bytes, 4);
     spi.endTransmission(deviceNumber);
 
-    voltage = bytes[0] << 8 | bytes[1];
-    voltage = voltage * 12288 / 65536;
+    // First byte is MSB
+    uint32_t voltage = bytes[0] << 8 | bytes[1];
+    // Normalize the received info (divide by uint16_t(MAX)) and scale accordingly
+    voltage = voltage / UINT16_MAX * VOLTAGE_MAX;
     core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "byte0 = %x", bytes[0]);
     core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "byte1 = %x", bytes[1]);;
     core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "voltage = %u", voltage);

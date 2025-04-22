@@ -26,6 +26,7 @@ void HIB::readThrottleVoltage() {
     // Increment the status of each
     if (status == DEV::RedundantADC::Status::OK) {
         payload[4]++;
+    }
 }
 
 void HIB::readBrakeVoltage() {

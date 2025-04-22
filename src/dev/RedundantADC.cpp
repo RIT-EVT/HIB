@@ -1,9 +1,10 @@
-#include <core/io/ADC.hpp>
-#include <cmath>
 #include <dev/RedundantADC.hpp>
+#include <dev/ADS8689IPWR.hpp>
+#include <cmath>
 
 namespace io = core::io;
 
+// Percantage differences
 constexpr uint32_t LOW_MARGIN = 1;
 constexpr uint32_t HIGH_MARGIN = 5;
 
@@ -12,16 +13,17 @@ namespace HIB::DEV {
 RedundantADC::RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
 RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
-    // Read in ADC values in millivoltage
+    // Read in the millivoltage of each ADC
     int32_t adcValues[3];
     adcValues[0] = static_cast<int32_t>(adc0.read());
     adcValues[1] = static_cast<int32_t>(adc1.read());
     adcValues[2] = static_cast<int32_t>(adc2.read());
 
-    // Calculate average of all ADC values
+    // Calculate average of all ADC millivoltages
     const int32_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
 
-    // Check for margin error
+    // Check for deviation errors.
+    // Formula: |DEVIATION_FROM_AVERAGE| / AVERAGE (NORMALIZED) * 100 TO SCALE UP PERCENTAGE FROM 0.01 TO 1
     const bool adc0underLow = (std::abs(adcValues[0] - average) * 100 / average) < LOW_MARGIN;
     const bool adc1underLow = (std::abs(adcValues[1] - average) * 100 / average) < LOW_MARGIN;
     const bool adc2underLow = (std::abs(adcValues[2] - average) * 100 / average) < LOW_MARGIN;
