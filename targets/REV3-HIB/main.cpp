@@ -103,11 +103,11 @@ int main() {
     int count = 0;
 
     // Speed Loop (Comment out to get display
-    /* while (true) {
+    while (true) {
         hib.process();
         io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
         can.receive(&received_message, false);
-    } */
+    }
 
     // Display Loop
     while (true) {
