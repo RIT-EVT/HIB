@@ -1,14 +1,14 @@
+#include <HIB.hpp>
+#include <chrono>
 #include <core/io/GPIO.hpp>
 #include <core/io/SPI.hpp>
 #include <core/io/UART.hpp>
 #include <core/manager.hpp>
 #include <core/utils/time.hpp>
-#include <HIB.hpp>
-#include <dev/RedundantADC.hpp>
 #include <dev/ADS8689IPWR.hpp>
+#include <dev/RedundantADC.hpp>
 
 namespace io   = core::io;
-namespace time = core::time;
 
 constexpr uint32_t SPI_SPEED = SPI_SPEED_500KHZ; // 500KHz
 constexpr uint8_t deviceCount = 3;
@@ -85,16 +85,12 @@ int main() {
     auto hib = HIB::HIB(throttle, brake);
 
     // ID for HIB is 0x0D0
-    io::CANMessage transmit_message(0x0D0, 5, hib.payload, false);
+    io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
     io::CANMessage received_message;
 
     // Try to join the network
     io::CAN::CANStatus result = can.connect();
-
-    //  can.addCANFilter(0, 0, 13);  //This would create a filter that allows all messages through
-    can.addCANFilter(0xD0, 0xFF0, 0);
     can.enableEmergencyFilter(ENABLE);
-
     // Begin CAN Tests
     uart.printf("Starting CAN testing\r\n");
 
@@ -103,10 +99,23 @@ int main() {
         return 1;
     }
 
-    // MAIN loop
+    // main
+    int count = 0;
+
+    // Speed Loop (Comment out to get display
+    /* while (true) {
+        hib.process();
+        io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
+        can.receive(&received_message, false);
+    } */
+
+    // Display Loop
     while (true) {
         // Process the voltage
         hib.process();
+
+        // ID for HIB is 0x0D0
+        io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
 
         // Try to send the message
         result = can.transmit(transmit_message);
@@ -125,7 +134,7 @@ int main() {
         // Check if data was received
         if (received_message.getDataLength() == 0) {
             uart.printf("Message filtered out!");
-        } else {
+        }  else {
             uart.printf("Message received\r\n");
             uart.printf("Message id: %d \r\n", received_message.getId());
             uart.printf("Message length: %d\r\n", received_message.getDataLength());
@@ -136,15 +145,29 @@ int main() {
                 uart.printf("0x%02X ", message_payload[i]);
             }
 
+            uart.printf("\r\n");
+
+            for (int i = 0; i < received_message.getDataLength(); i++) {
+                uart.printf("0x%02X ", hib.payload[i]);
+            }
+
             // CAN most likely make variables to store total errors over the entire runtime to get a better picture
             uart.printf("\r\n");
             uart.printf("Throttle Voltage: %i mV\r\n", message_payload[0] << 8 | message_payload[1]);
             uart.printf("Brake Voltage: %i mV\r\n", message_payload[2] << 8 | message_payload[3]);
             uart.printf("Error Code (1 = Throttle, 2 = Brake, 3 = Both): %i\r\n", message_payload[4]);
+            uart.printf("Throttle Voltage: %i mV\r\n", hib.throttleVoltage);
+            uart.printf("Brake Voltage: %i mV\r\n", hib.brakeVoltage);
+            uart.printf("Throttle Acceptable Errors: %i\r\n", hib.acceptableThrottleMarginErrors);
+            uart.printf("Throttle Precision Errors: %i\r\n", hib.precisionThrottleMarginErrors);
+            uart.printf("Throttle Comparison Errors: %i\r\n", hib.comparisonThrottleErrors);
+            uart.printf("Brake Acceptable Errors: %i\r\n", hib.acceptableBrakeMarginErrors);
+            uart.printf("Brake Precision Errors: %i\r\n", hib.precisionBrakeMarginErrors);
+            uart.printf("Brake Comparison Errors: %i\r\n", hib.comparisonBrakeErrors);
+            count++;
+            core::time::wait(1000);
         }
         uart.printf("\r\n\r\n");
-
-        core::time::wait(2000);
     }
 
     return 0;

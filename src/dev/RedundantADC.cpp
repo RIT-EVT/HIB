@@ -5,9 +5,9 @@
 namespace io = core::io;
 
 // Percantage differences
-// Values are 1% and 5% of 12288 Mv respectively
-constexpr uint32_t LOW_MARGIN = 123;
-constexpr uint32_t HIGH_MARGIN = 614;
+// Values are 1% and 5% of 12288 Mv respectively not really though
+constexpr uint32_t LOW_MARGIN = 400;
+constexpr uint32_t HIGH_MARGIN = 800;
 
 namespace HIB::DEV {
 
@@ -25,7 +25,7 @@ RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
 
     // Check for deviation errors.
     // Formula: |DEVIATION_FROM_AVERAGE| / AVERAGE (NORMALIZED) * 100 TO SCALE UP PERCENTAGE FROM 0.01 TO 1
-    const bool adc0underLow = static_cast<uint32_t>(::abs(adcValues[0] - average)) < LOW_MARGIN;
+    const bool adc0underLow = static_cast<uint32_t>(std::abs(adcValues[0] - average)) < LOW_MARGIN;
     const bool adc1underLow = static_cast<uint32_t>(std::abs(adcValues[1] - average)) < LOW_MARGIN;
     const bool adc2underLow = static_cast<uint32_t>(std::abs(adcValues[2] - average)) < LOW_MARGIN;
 
@@ -35,6 +35,10 @@ RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
 
     // Check for redundancy
     const bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
+
+    if (average == 0) {
+        return RedundantADC::Status::OK;
+    }
 
     if (allUnderLow) {
         return_val = average;

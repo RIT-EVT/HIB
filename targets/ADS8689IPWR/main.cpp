@@ -68,12 +68,10 @@ int main() {
     // main loop
     while (true) {
         hib.process();
-        uart.printf("Throttle Voltage: %i mV\r\n", hib.payload[0] << 8 | hib.payload[1]);
-        uart.printf("Brake Voltage: %i mV\r\n", hib.payload[2] << 8 | hib.payload[3]);
-        uart.printf("OK: %i\r\n", hib.payload[4]);
-        uart.printf("PRECISION_MARGIN_EXCEEDED: %i\r\n", hib.payload[5]);
-        uart.printf("ACCEPTABLE_MARGIN_EXCEEDED: %i\r\n", hib.payload[6]);
-        uart.printf("COMPARISON_ERROR: %i\r\n", hib.payload[7]);
-        time::wait(1000);
+        uart.printf("Throttle Voltage: %i mV\r\n", hib.throttleVoltage);
+        uart.printf("Brake Voltage: %i mV\r\n", hib.brakeVoltage);
+        uart.printf("Acceptable Errors: %i\r\n", hib.acceptableThrottleMarginErrors);
+        uart.printf("Precision Errors: %i\r\n", hib.precisionThrottleMarginErrors);
+        uart.printf("Comparison Errors: %i\r\n", hib.comparisonThrottleErrors);
     }
 }

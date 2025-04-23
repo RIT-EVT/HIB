@@ -24,26 +24,27 @@ public:
 
     void process();
 
+    uint8_t payload[payloadLength];
+    uint32_t throttleVoltage = 0;
+    uint32_t brakeVoltage = 0;
+
+    // Counters for throttle errors
+    uint8_t acceptableThrottleMarginErrors = 0;
+    uint8_t precisionThrottleMarginErrors = 0;
+    uint8_t comparisonThrottleErrors = 0;
+
+    // Counters for brake errors
+    uint8_t acceptableBrakeMarginErrors = 0;
+    uint8_t precisionBrakeMarginErrors = 0;
+    uint8_t comparisonBrakeErrors = 0;
+
+private:
     void readThrottleVoltage();
 
     void readBrakeVoltage();
 
-    uint8_t payload[payloadLength];
-
-private:
     DEV::RedundantADC& throttle;
     DEV::RedundantADC& brake;
-
-    // Counters for throttle errors
-    uint8_t acceptableThrottleMarginErrors;
-    uint8_t precisionThrottleMarginErrors;
-    uint8_t comparisonThrottleErrors;
-
-    // Counters for brake errors
-    uint8_t acceptableBrakeMarginErrors;
-    uint8_t precisionBrakeMarginErrors;
-    uint8_t comparisonBrakeErrors;
-
 
     /**
      * Payload for CAN transmission.

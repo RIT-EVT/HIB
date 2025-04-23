@@ -1,5 +1,3 @@
-#include "../../libs/EVT-core/samples/canopen/canopen_sample/TestCanNode.hpp"
-
 #include <core/utils/log.hpp>
 #include <dev/ADS8689IPWR.hpp>
 
@@ -25,11 +23,9 @@ uint16_t ADS8689IPWR::read() {
     spi.endTransmission(deviceNumber);
 
     // First byte is MSB
-    uint32_t voltage = bytes[0] << 8 | bytes[1];
+    uint32_t voltage = (bytes[0] << 8) + bytes[1];
     // Normalize the received info (divide by uint16_t(MAX)) and scale accordingly
-    voltage = voltage / UINT16_MAX * VOLTAGE_MAX;
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "byte0 = %x", bytes[0]);
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "byte1 = %x", bytes[1]);;
+    voltage = voltage * VOLTAGE_MAX / UINT16_MAX;
     core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "voltage = %u", voltage);
     return voltage;
 }

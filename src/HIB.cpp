@@ -13,8 +13,21 @@ HIB::HIB(DEV::RedundantADC& throttle, DEV::RedundantADC& brake)
 
 // Reads the 2 sets of 3 ADC's and processes their errors while packaging them for CAN
 void HIB::process() {
-    HIB::readThrottleVoltage();
-    HIB::readBrakeVoltage();
+    readThrottleVoltage();
+    readBrakeVoltage();
+
+    if (throttleVoltage < 300) {
+        throttleVoltage = 0;
+    }
+
+    if (brakeVoltage < 300) {
+        brakeVoltage = 0;
+    }
+
+    payload[0] = throttleVoltage >> 8;
+    payload[1] = throttleVoltage & 0xFF;
+    payload[2] = brakeVoltage >> 8;
+    payload[3] = brakeVoltage & 0xFF;
 
     if (acceptableThrottleMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT) {
         payload[4] = payload[4] | 0b00000001;
@@ -24,7 +37,7 @@ void HIB::process() {
         payload[4] = payload[4] | 0b00000010;
     }
 
-    if (precisionThrottleMarginErrors < PRECISION_MARGIN_ERROR_COUNT) {
+    if (precisionThrottleMarginErrors > PRECISION_MARGIN_ERROR_COUNT) {
         payload[4] = payload[4] | 0b00000001;
     }
 
@@ -32,20 +45,17 @@ void HIB::process() {
         payload[4] = payload[4] | 0b00000010;
     }
 
-    if (comparisonThrottleErrors < COMPARISON_ERROR_COUNT) {
+    if (comparisonThrottleErrors > COMPARISON_ERROR_COUNT) {
         payload[4] = payload[4] | 0b00000001;
     }
 
-    if (comparisonBrakeErrors < COMPARISON_ERROR_COUNT) {
+    if (comparisonBrakeErrors > COMPARISON_ERROR_COUNT) {
         payload[4] = payload[4] | 0b00000010;
     }
 }
 
 void HIB::readThrottleVoltage() {
-    uint32_t voltage = 0; // Voltage to be received in millivolts
-    const DEV::RedundantADC::Status status = throttle.read(voltage); // gets the errors and voltage from the ADC cluster
-    payload[0] += voltage >> 8;
-    payload[1] += voltage & 0xff;
+    const DEV::RedundantADC::Status status = throttle.read(throttleVoltage); // gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
     if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
@@ -62,11 +72,7 @@ void HIB::readThrottleVoltage() {
 }
 
 void HIB::readBrakeVoltage() {
-    uint32_t voltage = 0; // Voltage to be received in millivolts
-    DEV::RedundantADC::Status status = brake.read(voltage); // gets the errors and voltage from the ADC cluster
-
-    payload[2] += voltage >> 8;
-    payload[3] += voltage & 0xff;
+    DEV::RedundantADC::Status status = brake.read(brakeVoltage); // gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
     if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
