@@ -5,8 +5,9 @@
 namespace io = core::io;
 
 // Percantage differences
-constexpr uint32_t LOW_MARGIN = 1;
-constexpr uint32_t HIGH_MARGIN = 5;
+// Values are 1% and 5% of 12288 Mv respectively
+constexpr uint32_t LOW_MARGIN = 123;
+constexpr uint32_t HIGH_MARGIN = 614;
 
 namespace HIB::DEV {
 
@@ -24,13 +25,13 @@ RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
 
     // Check for deviation errors.
     // Formula: |DEVIATION_FROM_AVERAGE| / AVERAGE (NORMALIZED) * 100 TO SCALE UP PERCENTAGE FROM 0.01 TO 1
-    const bool adc0underLow = (std::abs(adcValues[0] - average) * 100 / average) < LOW_MARGIN;
-    const bool adc1underLow = (std::abs(adcValues[1] - average) * 100 / average) < LOW_MARGIN;
-    const bool adc2underLow = (std::abs(adcValues[2] - average) * 100 / average) < LOW_MARGIN;
+    const bool adc0underLow = static_cast<uint32_t>(::abs(adcValues[0] - average)) < LOW_MARGIN;
+    const bool adc1underLow = static_cast<uint32_t>(std::abs(adcValues[1] - average)) < LOW_MARGIN;
+    const bool adc2underLow = static_cast<uint32_t>(std::abs(adcValues[2] - average)) < LOW_MARGIN;
 
-    const bool adc0underHigh = (std::abs(adcValues[0] - average) * 100 / average) < HIGH_MARGIN;
-    const bool adc1underHigh = (std::abs(adcValues[1] - average) * 100 / average) < HIGH_MARGIN;
-    const bool adc2underHigh = (std::abs(adcValues[2] - average) * 100 / average) < HIGH_MARGIN;
+    const bool adc0underHigh = static_cast<uint32_t>(std::abs(adcValues[0] - average)) < HIGH_MARGIN;
+    const bool adc1underHigh = static_cast<uint32_t>(std::abs(adcValues[1] - average)) < HIGH_MARGIN;
+    const bool adc2underHigh = static_cast<uint32_t>(std::abs(adcValues[2] - average)) < HIGH_MARGIN;
 
     // Check for redundancy
     const bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;

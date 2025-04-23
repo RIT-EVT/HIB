@@ -8,7 +8,6 @@
 #define HALF_WORD_WRITE 0b11010000
 #define EMPTY_BYTE 0b00000000
 #define NOP {EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE}
-#define UINT16_MAX 65535
 #define VOLTAGE_MAX 12288
 
 namespace io   = core::io;

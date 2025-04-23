@@ -85,7 +85,7 @@ int main() {
     auto hib = HIB::HIB(throttle, brake);
 
     // ID for HIB is 0x0D0
-    io::CANMessage transmit_message(0x0D0, 8, hib.payload, false);
+    io::CANMessage transmit_message(0x0D0, 5, hib.payload, false);
     io::CANMessage received_message;
 
     // Try to join the network
@@ -140,10 +140,7 @@ int main() {
             uart.printf("\r\n");
             uart.printf("Throttle Voltage: %i mV\r\n", message_payload[0] << 8 | message_payload[1]);
             uart.printf("Brake Voltage: %i mV\r\n", message_payload[2] << 8 | message_payload[3]);
-            uart.printf("No Errors: %i\r\n", message_payload[4]);
-            uart.printf("Precision Errors: %i\r\n", message_payload[5]);
-            uart.printf("Margin Errors: %i\r\n", message_payload[6]);
-            uart.printf("Comparison Errors: %i\r\n", message_payload[7]);
+            uart.printf("Error Code (1 = Throttle, 2 = Brake, 3 = Both): %i\r\n", message_payload[4]);
         }
         uart.printf("\r\n\r\n");
 
