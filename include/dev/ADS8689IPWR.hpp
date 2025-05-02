@@ -30,7 +30,7 @@ public:
      * @param voltage reference to variable that is storing voltage
      * @return the status of whether the transaction was successful
      */
-    uint16_t read();
+    uint16_t read() const;
 private:
     io::SPI& spi;
     const uint8_t deviceNumber;

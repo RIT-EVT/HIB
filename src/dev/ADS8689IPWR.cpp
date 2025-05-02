@@ -16,7 +16,7 @@ ADS8689IPWR::ADS8689IPWR(io::SPI& spi, const uint8_t deviceNumber) : spi(spi), d
     spi.endTransmission(deviceNumber);
 }
 
-uint16_t ADS8689IPWR::read() {
+uint16_t ADS8689IPWR::read() const {
     uint8_t bytes[4];
     spi.startTransmission(deviceNumber);
     spi.read(bytes, 4);
@@ -24,9 +24,9 @@ uint16_t ADS8689IPWR::read() {
 
     // First byte is MSB
     uint32_t voltage = (bytes[0] << 8) + bytes[1];
+
     // Normalize the received info (divide by uint16_t(MAX)) and scale accordingly
     voltage = voltage * VOLTAGE_MAX / UINT16_MAX;
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "voltage = %u", voltage);
     return voltage;
 }
 
