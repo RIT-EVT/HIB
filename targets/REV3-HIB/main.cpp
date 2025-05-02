@@ -8,7 +8,9 @@
 #include <dev/ADS8689IPWR.hpp>
 #include <dev/RedundantADC.hpp>
 
-namespace io   = core::io;
+namespace io = core::io;
+namespace dev = HIB::DEV;
+namespace hib = HIB;
 
 constexpr uint32_t SPI_SPEED = SPI_SPEED_500KHZ; // 500KHz
 constexpr uint8_t deviceCount = 3;
@@ -33,6 +35,9 @@ void canIRQHandler(io::CANMessage& message, void* priv) {
 }
 
 int main() {
+    // Count for the number of iterations of the process
+    uint64_t count = 0;
+
     // Initialize system
     core::platform::init();
 
@@ -42,51 +47,40 @@ int main() {
     // Initialize CAN
     io::CAN& can = io::getCAN<io::Pin::PA_12, io::Pin::PA_11>(true);
 
-    // Set up each device
+    // Brake ADC setup
     brakeDevices[0] = &io::getGPIO<io::Pin::PB_9>(io::GPIO::Direction::OUTPUT);
     brakeDevices[0]->writePin(io::GPIO::State::HIGH);
-
     brakeDevices[1] = &io::getGPIO<io::Pin::PB_8>(io::GPIO::Direction::OUTPUT);
     brakeDevices[1]->writePin(io::GPIO::State::HIGH);
-
     brakeDevices[2] = &io::getGPIO<io::Pin::PB_7>(io::GPIO::Direction::OUTPUT);
     brakeDevices[2]->writePin(io::GPIO::State::HIGH);
 
+    io::SPI& spiBrake = io::getSPI<io::Pin::PC_10, io::Pin::PC_12, io::Pin::PC_11>(brakeDevices, deviceCount);
+    spiBrake.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
+
+    dev::ADS8689IPWR brakeADC1 = dev::ADS8689IPWR(spiBrake, 0);
+    dev::ADS8689IPWR brakeADC2 = dev::ADS8689IPWR(spiBrake, 1);
+    dev::ADS8689IPWR brakeADC3 = dev::ADS8689IPWR(spiBrake, 2);
+    dev::RedundantADC brake = dev::RedundantADC(brakeADC1, brakeADC2, brakeADC3);
+
+    // Throttle ADC setup
     throttleDevices[0] = &io::getGPIO<io::Pin::PC_7>(io::GPIO::Direction::OUTPUT);
     throttleDevices[0]->writePin(io::GPIO::State::HIGH);
-
     throttleDevices[1] = &io::getGPIO<io::Pin::PC_8>(io::GPIO::Direction::OUTPUT);
     throttleDevices[1]->writePin(io::GPIO::State::HIGH);
-
     throttleDevices[2] = &io::getGPIO<io::Pin::PC_9>(io::GPIO::Direction::OUTPUT);
     throttleDevices[2]->writePin(io::GPIO::State::HIGH);
 
-    // Create the two SPI clusters
     io::SPI& spiThrottle = io::getSPI<io::Pin::PB_10, io::Pin::PB_15, io::Pin::PB_14>(throttleDevices, deviceCount);
-    io::SPI& spiBrake = io::getSPI<io::Pin::PC_10, io::Pin::PC_12, io::Pin::PC_11>(brakeDevices, deviceCount);
-
-    // Configure the systems
     spiThrottle.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
-    spiBrake.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
 
-    // Create each ADS8689IPWR object
-    auto throttleADC1 = HIB::DEV::ADS8689IPWR(spiThrottle, 0);
-    auto throttleADC2 = HIB::DEV::ADS8689IPWR(spiThrottle, 1);
-    auto throttleADC3 = HIB::DEV::ADS8689IPWR(spiThrottle, 2);
-    auto brakeADC1 = HIB::DEV::ADS8689IPWR(spiBrake, 0);
-    auto brakeADC2 = HIB::DEV::ADS8689IPWR(spiBrake, 1);
-    auto brakeADC3 = HIB::DEV::ADS8689IPWR(spiBrake, 2);
-
-    // Create the Redundant ADC's
-    auto throttle = HIB::DEV::RedundantADC(throttleADC1, throttleADC2, throttleADC3);
-    auto brake = HIB::DEV::RedundantADC(brakeADC1, brakeADC2, brakeADC3);
+    dev::ADS8689IPWR throttleADC1 = dev::ADS8689IPWR(spiThrottle, 0);
+    dev::ADS8689IPWR throttleADC2 = dev::ADS8689IPWR(spiThrottle, 1);
+    dev::ADS8689IPWR throttleADC3 = dev::ADS8689IPWR(spiThrottle, 2);
+    dev::RedundantADC throttle = dev::RedundantADC(throttleADC1, throttleADC2, throttleADC3);
 
     // Finally create the HIB object to begin processing data
-    auto hib = HIB::HIB(throttle, brake);
-
-    // ID for HIB is 0x0D0
-    io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
-    io::CANMessage received_message;
+    hib::HIB hib = hib::HIB(throttle, brake);
 
     // Try to join the network
     io::CAN::CANStatus result = can.connect();
@@ -99,16 +93,6 @@ int main() {
         return 1;
     }
 
-    // main
-    int count = 0;
-
-    // Speed Loop (Comment out to get display
-    while (true) {
-        hib.process();
-        io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
-        can.receive(&received_message, false);
-    }
-
     // Display Loop
     while (true) {
         // Process the voltage
@@ -116,6 +100,7 @@ int main() {
 
         // ID for HIB is 0x0D0
         io::CANMessage transmit_message(0x0D0, 5, &hib.payload[0], false);
+        io::CANMessage received_message;
 
         // Try to send the message
         result = can.transmit(transmit_message);
@@ -131,43 +116,35 @@ int main() {
             continue;
         }
 
-        // Check if data was received
-        if (received_message.getDataLength() == 0) {
-            uart.printf("Message filtered out!");
-        }  else {
-            uart.printf("Message received\r\n");
-            uart.printf("Message id: %d \r\n", received_message.getId());
-            uart.printf("Message length: %d\r\n", received_message.getDataLength());
-            uart.printf("Message contents: ");
+        if (count >= 2000) {
+            uart.printf("\033[2J\033[H");
+            // Check if data was received
+            if (received_message.getDataLength() == 0) {
+                uart.printf("Message filtered out!");
+            }
+            else {
+                const uint8_t* message_payload = received_message.getPayload();
+                uart.printf("CAN payload: \033[32m");
 
-            const uint8_t* message_payload = received_message.getPayload();
-            for (int i = 0; i < received_message.getDataLength(); i++) {
-                uart.printf("0x%02X ", message_payload[i]);
+                for (int i = 0; i < received_message.getDataLength(); i++) {
+                    uart.printf("0x%02X ", message_payload[i]);
+                }
+
+                uart.printf("\r\n\033[37mHIB payload: \033[34m");
+
+                for (int i = 0; i < received_message.getDataLength(); i++) {
+                    uart.printf("0x%02X ", hib.payload[i]);
+                }
+
+                uart.printf("\r\n\033[37m");
+                uart.printf("Throttle Voltage: %i mV\r\n", message_payload[0] << 8 | message_payload[1]);
+                uart.printf("Error Code: %i\r\n", message_payload[4]);
             }
 
-            uart.printf("\r\n");
-
-            for (int i = 0; i < received_message.getDataLength(); i++) {
-                uart.printf("0x%02X ", hib.payload[i]);
-            }
-
-            // CAN most likely make variables to store total errors over the entire runtime to get a better picture
-            uart.printf("\r\n");
-            uart.printf("Throttle Voltage: %i mV\r\n", message_payload[0] << 8 | message_payload[1]);
-            uart.printf("Brake Voltage: %i mV\r\n", message_payload[2] << 8 | message_payload[3]);
-            uart.printf("Error Code (1 = Throttle, 2 = Brake, 3 = Both): %i\r\n", message_payload[4]);
-            uart.printf("Throttle Voltage: %i mV\r\n", hib.throttleVoltage);
-            uart.printf("Brake Voltage: %i mV\r\n", hib.brakeVoltage);
-            uart.printf("Throttle Acceptable Errors: %i\r\n", hib.acceptableThrottleMarginErrors);
-            uart.printf("Throttle Precision Errors: %i\r\n", hib.precisionThrottleMarginErrors);
-            uart.printf("Throttle Comparison Errors: %i\r\n", hib.comparisonThrottleErrors);
-            uart.printf("Brake Acceptable Errors: %i\r\n", hib.acceptableBrakeMarginErrors);
-            uart.printf("Brake Precision Errors: %i\r\n", hib.precisionBrakeMarginErrors);
-            uart.printf("Brake Comparison Errors: %i\r\n", hib.comparisonBrakeErrors);
-            count++;
-            core::time::wait(1000);
+            count = 0;
         }
-        uart.printf("\r\n\r\n");
+
+        count++;
     }
 
     return 0;
