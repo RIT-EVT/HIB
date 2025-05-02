@@ -29,14 +29,14 @@ public:
     uint32_t brakeVoltage = 0;
 
     // Counters for throttle errors
-    uint8_t acceptableThrottleMarginErrors = 0;
-    uint8_t precisionThrottleMarginErrors = 0;
-    uint8_t comparisonThrottleErrors = 0;
+    uint64_t acceptableThrottleMarginErrors = 0;
+    uint64_t precisionThrottleMarginErrors = 0;
+    uint64_t comparisonThrottleErrors = 0;
 
     // Counters for brake errors
-    uint8_t acceptableBrakeMarginErrors = 0;
-    uint8_t precisionBrakeMarginErrors = 0;
-    uint8_t comparisonBrakeErrors = 0;
+    uint64_t acceptableBrakeMarginErrors = 0;
+    uint64_t precisionBrakeMarginErrors = 0;
+    uint64_t comparisonBrakeErrors = 0;
 
 private:
     void readThrottleVoltage();

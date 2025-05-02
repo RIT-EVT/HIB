@@ -30,23 +30,35 @@ void HIB::process() {
     payload[2] = static_cast<uint8_t>(brakeVoltage >> 8 & 0xFF);
     payload[3] = static_cast<uint8_t>(brakeVoltage & 0xFF);
 
-    if (acceptableThrottleMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT)
+    if (acceptableThrottleMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT) {
+        acceptableThrottleMarginErrors = ACCEPTABLE_MARGIN_ERROR_COUNT + 1;
         payload[4] |= 0b01;
+    }
 
-    if (acceptableBrakeMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT)
+    if (acceptableBrakeMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT) {
+        acceptableBrakeMarginErrors = ACCEPTABLE_MARGIN_ERROR_COUNT + 1;
         payload[4] |= 0b10;
+    }
 
-    if (precisionThrottleMarginErrors > PRECISION_MARGIN_ERROR_COUNT)
+    if (precisionThrottleMarginErrors > PRECISION_MARGIN_ERROR_COUNT) {
+        precisionThrottleMarginErrors = PRECISION_MARGIN_ERROR_COUNT + 1;
         payload[4] |= 0b01;
+    }
 
-    if (precisionBrakeMarginErrors > PRECISION_MARGIN_ERROR_COUNT)
+    if (precisionBrakeMarginErrors > PRECISION_MARGIN_ERROR_COUNT) {
+        precisionBrakeMarginErrors = PRECISION_MARGIN_ERROR_COUNT + 1;
         payload[4] |= 0b10;
+    }
 
-    if (comparisonThrottleErrors > COMPARISON_ERROR_COUNT)
+    if (comparisonThrottleErrors > COMPARISON_ERROR_COUNT) {
+        comparisonThrottleErrors = COMPARISON_ERROR_COUNT + 1;
         payload[4] |= 0b01;
+    }
 
-    if (comparisonBrakeErrors > COMPARISON_ERROR_COUNT)
+    if (comparisonBrakeErrors > COMPARISON_ERROR_COUNT) {
+        comparisonBrakeErrors = COMPARISON_ERROR_COUNT + 1;
         payload[4] |= 0b10;
+    }
 }
 
 void HIB::readThrottleVoltage() {
