@@ -7,6 +7,7 @@
 #include <core/utils/time.hpp>
 #include <dev/ADS8689IPWR.hpp>
 #include <dev/RedundantADC.hpp>
+#include <core/utils/log.hpp>
 
 namespace io = core::io;
 namespace dev = HIB::DEV;
@@ -41,8 +42,13 @@ int main() {
     // Initialize system
     core::platform::init();
 
-    // Initialize UART
+    // Initialize UART and logger
     io::UART& uart = io::getUART<io::Pin::UART_TX, io::Pin::UART_RX>(9600);
+    core::log::LOGGER.setUART(&uart);
+    core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
+
+    // TEMPLATE
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "");
 
     // Initialize CAN
     io::CAN& can = io::getCAN<io::Pin::PA_12, io::Pin::PA_11>(true);
