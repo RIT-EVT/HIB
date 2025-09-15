@@ -1,5 +1,6 @@
 #include <core/utils/log.hpp>
 #include <dev/ADS8689IPWR.hpp>
+#include <core/utils/log.hpp>
 
 namespace HIB::DEV {
 
@@ -27,6 +28,12 @@ uint16_t ADS8689IPWR::read() const {
 
     // Normalize the received info (divide by uint16_t(MAX)) and scale accordingly
     voltage = voltage * VOLTAGE_MAX / UINT16_MAX;
+    static int count = 0;
+    if (count > 2000) {
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage at the ADS8689IPWR: %i\r\n", voltage);
+        count = 0;
+    }
+    count += 1;
     return voltage;
 }
 

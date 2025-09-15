@@ -7,9 +7,10 @@
 #include <core/utils/time.hpp>
 #include <dev/ADS8689IPWR.hpp>
 #include <dev/RedundantADC.hpp>
+#include <core/utils/log.hpp>
 
 namespace io = core::io;
-namespace dev = HIB::DEV;
+namespace devh = HIB::DEV;
 namespace hib = HIB;
 
 constexpr uint32_t SPI_SPEED = SPI_SPEED_500KHZ; // 500KHz
@@ -22,16 +23,16 @@ io::GPIO* brakeDevices[deviceCount];
 
 void canIRQHandler(io::CANMessage& message, void* priv) {
     io::UART* uart = (io::UART*) priv;
-    uart->printf("Message received\r\n");
-    uart->printf("Message id: 0x%X \r\n", message.getId());
-    uart->printf("Message length: %d\r\n", message.getDataLength());
-    uart->printf("Message contents: ");
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message received\r\n");
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message id: 0x%X \r\n", message.getId());
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message length: %d\r\n", message.getDataLength());
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message contents: ");
 
     uint8_t* message_payload = message.getPayload();
     for (int i = 0; i < message.getDataLength(); i++) {
-        uart->printf("0x%02X ", message_payload[i]);
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"0x%02X ", message_payload[i]);
     }
-    uart->printf("\r\n\r\n");
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"\r\n\r\n");
 }
 
 int main() {
@@ -43,6 +44,9 @@ int main() {
 
     // Initialize UART
     io::UART& uart = io::getUART<io::Pin::UART_TX, io::Pin::UART_RX>(9600);
+
+    core::log::LOGGER.setUART(&uart);
+    core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
 
     // Initialize CAN
     io::CAN& can = io::getCAN<io::Pin::PA_12, io::Pin::PA_11>(true);
@@ -58,10 +62,10 @@ int main() {
     io::SPI& spiBrake = io::getSPI<io::Pin::PC_10, io::Pin::PC_12, io::Pin::PC_11>(brakeDevices, deviceCount);
     spiBrake.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
 
-    dev::ADS8689IPWR brakeADC1 = dev::ADS8689IPWR(spiBrake, 0);
-    dev::ADS8689IPWR brakeADC2 = dev::ADS8689IPWR(spiBrake, 1);
-    dev::ADS8689IPWR brakeADC3 = dev::ADS8689IPWR(spiBrake, 2);
-    dev::RedundantADC brake = dev::RedundantADC(brakeADC1, brakeADC2, brakeADC3);
+    devh::ADS8689IPWR brakeADC1 = devh::ADS8689IPWR(spiBrake, 0);
+    devh::ADS8689IPWR brakeADC2 = devh::ADS8689IPWR(spiBrake, 1);
+    devh::ADS8689IPWR brakeADC3 = devh::ADS8689IPWR(spiBrake, 2);
+    devh::RedundantADC brake = devh::RedundantADC(brakeADC1, brakeADC2, brakeADC3);
 
     // Throttle ADC setup
     throttleDevices[0] = &io::getGPIO<io::Pin::PC_7>(io::GPIO::Direction::OUTPUT);
@@ -74,10 +78,10 @@ int main() {
     io::SPI& spiThrottle = io::getSPI<io::Pin::PB_10, io::Pin::PB_15, io::Pin::PB_14>(throttleDevices, deviceCount);
     spiThrottle.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
 
-    dev::ADS8689IPWR throttleADC1 = dev::ADS8689IPWR(spiThrottle, 0);
-    dev::ADS8689IPWR throttleADC2 = dev::ADS8689IPWR(spiThrottle, 1);
-    dev::ADS8689IPWR throttleADC3 = dev::ADS8689IPWR(spiThrottle, 2);
-    dev::RedundantADC throttle = dev::RedundantADC(throttleADC1, throttleADC2, throttleADC3);
+    devh::ADS8689IPWR throttleADC1 = devh::ADS8689IPWR(spiThrottle, 0);
+    devh::ADS8689IPWR throttleADC2 = devh::ADS8689IPWR(spiThrottle, 1);
+    devh::ADS8689IPWR throttleADC3 = devh::ADS8689IPWR(spiThrottle, 2);
+    devh::RedundantADC throttle = devh::RedundantADC(throttleADC1, throttleADC2, throttleADC3);
 
     // Finally create the HIB object to begin processing data
     hib::HIB hib = hib::HIB(throttle, brake);
@@ -85,15 +89,16 @@ int main() {
     // Try to join the network
     io::CAN::CANStatus result = can.connect();
     can.enableEmergencyFilter(ENABLE);
+
     // Begin CAN Tests
-    uart.printf("Starting CAN testing\r\n");
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Starting CAN testing\r\n");
 
     if (result !=io::CAN::CANStatus::OK) {
-        uart.printf("Failed to connect to CAN network\r\n");
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Failed to connect to CAN network\r\n");
         return 1;
     }
 
-    // Display Loop
+    // Main loop
     while (true) {
         // Process the voltage
         hib.process();
@@ -105,40 +110,42 @@ int main() {
         // Try to send the message
         result = can.transmit(transmit_message);
         if (result !=io::CAN::CANStatus::OK) {
-            uart.printf("Failed to transmit message\r\n");
+            core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Failed to transmit message\r\n");
             return 1;
         }
 
         // Try to receive the message
         result = can.receive(&received_message, false);
         if (result != io::CAN::CANStatus::OK) {
-            uart.printf("Failed to receive message\r\n");
+            core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Failed to receive message\r\n");
             continue;
         }
 
+        // Give the state of the payload
+        // Count is counting the number of loops
         if (count >= 2000) {
-            uart.printf("\033[2J\033[H");
+            // uart.printf("\033[2J\033[H");
             // Check if data was received
             if (received_message.getDataLength() == 0) {
-                uart.printf("Message filtered out!");
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Message filtered out!");
             }
             else {
                 const uint8_t* message_payload = received_message.getPayload();
-                uart.printf("CAN payload: \033[32m");
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "CAN payload: \033[32m");
 
                 for (int i = 0; i < received_message.getDataLength(); i++) {
-                    uart.printf("0x%02X ", message_payload[i]);
+                    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"0x%02X ", message_payload[i]);
                 }
 
-                uart.printf("\r\n\033[37mHIB payload: \033[34m");
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"\r\n\033[37mHIB payload: \033[34m");
 
                 for (int i = 0; i < received_message.getDataLength(); i++) {
-                    uart.printf("0x%02X ", hib.payload[i]);
+                    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"0x%02X ", hib.payload[i]);
                 }
 
-                uart.printf("\r\n\033[37m");
-                uart.printf("Throttle Voltage: %i mV\r\n", message_payload[0] << 8 | message_payload[1]);
-                uart.printf("Error Code: %i\r\n", message_payload[4]);
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"\r\n\033[37m");
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Throttle Voltage: %i mV\r\n", (message_payload[0] << 8 | message_payload[1]));
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Error Code: %i\r\n", message_payload[4]);
             }
 
             count = 0;

@@ -1,6 +1,7 @@
 #include <dev/RedundantADC.hpp>
 #include <dev/ADS8689IPWR.hpp>
 #include <cmath>
+#include <core/utils/log.hpp>
 
 namespace io = core::io;
 
@@ -13,7 +14,7 @@ namespace HIB::DEV {
 
 RedundantADC::RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
-RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
+RedundantADC::Status RedundantADC::read(uint32_t& return_val) const {
     // Read in the millivoltage of each ADC
     int32_t adcValues[3];
     adcValues[0] = static_cast<int32_t>(adc0.read());
@@ -22,6 +23,16 @@ RedundantADC::Status RedundantADC::read(uint32_t& return_val) {
 
     // Calculate average of all ADC millivoltages
     const int32_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
+
+    static int count = 0;
+    if (count > 2000) {
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
+        count = 0;
+    }
+    count += 1;
 
     // Check for deviation errors.
     // Formula: |DEVIATION_FROM_AVERAGE| / AVERAGE (NORMALIZED) * 100 TO SCALE UP PERCENTAGE FROM 0.01 TO 1
