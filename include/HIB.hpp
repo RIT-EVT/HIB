@@ -1,6 +1,4 @@
 #pragma once
-#include <core/io/UART.hpp>
-#include <dev/ADS8689IPWR.hpp>
 #include <dev/RedundantADC.hpp>
 #include <sys/types.h>
 
@@ -25,8 +23,8 @@ public:
     void process();
 
     uint8_t payload[payloadLength];
-    uint32_t throttleVoltage = 0;
-    uint32_t brakeVoltage = 0;
+    uint16_t throttleVoltage = 0;
+    uint16_t brakeVoltage = 0;
 
     // Counters for throttle errors
     uint64_t acceptableThrottleMarginErrors = 0;

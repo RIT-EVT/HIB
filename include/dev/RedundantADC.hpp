@@ -43,7 +43,7 @@ public:
      * @param[out] return_val Reference to the variable to store the value read from the ADCs
      * @return RedundantADC::Status The status of the processing.
      */
-    RedundantADC::Status read(uint32_t& return_val) const;
+    RedundantADC::Status read(uint16_t& return_val) const;
 
 private:
     /** Reference to the first ADC. */

@@ -7,42 +7,32 @@ namespace io = core::io;
 
 // Percantage differences
 // Values are 1% and 5% of 12288 Mv respectively not really though
-constexpr uint32_t LOW_MARGIN = 400;
-constexpr uint32_t HIGH_MARGIN = 800;
+constexpr uint16_t LOW_MARGIN = 400;
+constexpr uint16_t HIGH_MARGIN = 800;
 
 namespace HIB::DEV {
 
 RedundantADC::RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
-RedundantADC::Status RedundantADC::read(uint32_t& return_val) const {
+RedundantADC::Status RedundantADC::read(uint16_t& return_val) const {
     // Read in the millivoltage of each ADC
-    int32_t adcValues[3];
-    adcValues[0] = static_cast<int32_t>(adc0.read());
-    adcValues[1] = static_cast<int32_t>(adc1.read());
-    adcValues[2] = static_cast<int32_t>(adc2.read());
+    int16_t adcValues[3] = {0};
+    adcValues[0] = static_cast<int16_t>(adc0.read());
+    adcValues[1] = static_cast<int16_t>(adc1.read());
+    adcValues[2] = static_cast<int16_t>(adc2.read());
 
     // Calculate average of all ADC millivoltages
-    const int32_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
-
-    static int count = 0;
-    if (count > 2000) {
-        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
-        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
-        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
-        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Voltage average at the RedundantADC: %i\r\n", average);
-        count = 0;
-    }
-    count += 1;
+    const int16_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
 
     // Check for deviation errors.
     // Formula: |DEVIATION_FROM_AVERAGE| / AVERAGE (NORMALIZED) * 100 TO SCALE UP PERCENTAGE FROM 0.01 TO 1
-    const bool adc0underLow = static_cast<uint32_t>(std::abs(adcValues[0] - average)) < LOW_MARGIN;
-    const bool adc1underLow = static_cast<uint32_t>(std::abs(adcValues[1] - average)) < LOW_MARGIN;
-    const bool adc2underLow = static_cast<uint32_t>(std::abs(adcValues[2] - average)) < LOW_MARGIN;
+    const bool adc0underLow = static_cast<uint16_t>(std::abs(adcValues[0] - average)) < LOW_MARGIN;
+    const bool adc1underLow = static_cast<uint16_t>(std::abs(adcValues[1] - average)) < LOW_MARGIN;
+    const bool adc2underLow = static_cast<uint16_t>(std::abs(adcValues[2] - average)) < LOW_MARGIN;
 
-    const bool adc0underHigh = static_cast<uint32_t>(std::abs(adcValues[0] - average)) < HIGH_MARGIN;
-    const bool adc1underHigh = static_cast<uint32_t>(std::abs(adcValues[1] - average)) < HIGH_MARGIN;
-    const bool adc2underHigh = static_cast<uint32_t>(std::abs(adcValues[2] - average)) < HIGH_MARGIN;
+    const bool adc0underHigh = static_cast<uint16_t>(std::abs(adcValues[0] - average)) < HIGH_MARGIN;
+    const bool adc1underHigh = static_cast<uint16_t>(std::abs(adcValues[1] - average)) < HIGH_MARGIN;
+    const bool adc2underHigh = static_cast<uint16_t>(std::abs(adcValues[2] - average)) < HIGH_MARGIN;
 
     // Check for redundancy
     const bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
@@ -81,6 +71,12 @@ RedundantADC::Status RedundantADC::read(uint32_t& return_val) const {
     }
 
     return_val = 0;
+
+    // Zero out adc's
+    adcValues[0] = 0;
+    adcValues[1] = 0;
+    adcValues[2] = 0;
+
     return RedundantADC::Status::COMPARISON_ERROR;
 }
 

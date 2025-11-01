@@ -1,6 +1,5 @@
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
-#include <core/utils/log.hpp>
 
 namespace HIB {
 
@@ -18,11 +17,11 @@ void HIB::process() {
     readThrottleVoltage();
     // readBrakeVoltage();
 
-    if (throttleVoltage < 300) {
+    if (throttleVoltage < 475) {
         throttleVoltage = 0;
     }
 
-    if (brakeVoltage < 300) {
+    if (brakeVoltage < 450) {
         brakeVoltage = 0;
     }
 

@@ -4,7 +4,6 @@
 #include <core/io/SPI.hpp>
 #include <core/io/UART.hpp>
 #include <core/manager.hpp>
-#include <core/utils/time.hpp>
 #include <dev/ADS8689IPWR.hpp>
 #include <dev/RedundantADC.hpp>
 #include <core/utils/log.hpp>
@@ -22,11 +21,15 @@ io::GPIO* throttleDevices[deviceCount];
 io::GPIO* brakeDevices[deviceCount];
 
 void canIRQHandler(io::CANMessage& message, void* priv) {
-    io::UART* uart = (io::UART*) priv;
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message received\r\n");
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message id: 0x%X \r\n", message.getId());
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message length: %d\r\n", message.getDataLength());
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message contents: ");
+    core::log::LOGGER.log(
+        core::log::Logger::LogLevel::INFO,
+        "Message received\r\n"
+        "Message id: 0x%X \r\n"
+        "Message length: %d\r\n"
+        "Message contents: ",
+        message.getId(),
+        message.getDataLength()
+    );
 
     uint8_t* message_payload = message.getPayload();
     for (int i = 0; i < message.getDataLength(); i++) {
@@ -36,9 +39,6 @@ void canIRQHandler(io::CANMessage& message, void* priv) {
 }
 
 int main() {
-    // Count for the number of iterations of the process
-    uint64_t count = 0;
-
     // Initialize system
     core::platform::init();
 
@@ -88,7 +88,6 @@ int main() {
 
     // Try to join the network
     io::CAN::CANStatus result = can.connect();
-    can.enableEmergencyFilter(ENABLE);
 
     // Begin CAN Tests
     core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Starting CAN testing\r\n");
@@ -121,37 +120,28 @@ int main() {
             continue;
         }
 
-        // Give the state of the payload
-        // Count is counting the number of loops
-        if (count >= 2000) {
-            // uart.printf("\033[2J\033[H");
-            // Check if data was received
-            if (received_message.getDataLength() == 0) {
-                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Message filtered out!");
-            }
-            else {
-                const uint8_t* message_payload = received_message.getPayload();
-                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "CAN payload: \033[32m");
+        // uart.printf("\033[2J\033[H");
+        // Check if data was received
+        if (received_message.getDataLength() == 0) {
+            core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "Message filtered out!\r\n");
+        } else {
+            //
+            const uint8_t* message_payload = received_message.getPayload();
+            core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "CAN payload: \033[32m");
 
-                for (int i = 0; i < received_message.getDataLength(); i++) {
-                    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"0x%02X ", message_payload[i]);
-                }
-
-                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"\r\n\033[37mHIB payload: \033[34m");
-
-                for (int i = 0; i < received_message.getDataLength(); i++) {
-                    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"0x%02X ", hib.payload[i]);
-                }
-
-                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"\r\n\033[37m");
-                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Throttle Voltage: %i mV\r\n", (message_payload[0] << 8 | message_payload[1]));
-                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"Error Code: %i\r\n", message_payload[4]);
+            for (int i = 0; i < received_message.getDataLength(); i++) {
+                core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "0x%02X ", message_payload[i]);
             }
 
-            count = 0;
+            core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,
+                "\r\n"
+                "\033[37m"
+                "Throttle Voltage: %i mV\r\n"
+                "Throttle Voltage: %i mV\r\n"
+                "\033[2J\033[H",
+                message_payload[0] << 8 | message_payload[1],
+                message_payload[4]);
         }
-
-        count++;
     }
 
     return 0;
