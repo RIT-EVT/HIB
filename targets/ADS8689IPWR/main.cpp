@@ -42,11 +42,11 @@ int main() {
     throttleDevices[2] = &io::getGPIO<io::Pin::PC_9>(io::GPIO::Direction::OUTPUT);
     throttleDevices[2]->writePin(io::GPIO::State::HIGH);
 
-    // Create the two SPI clusters
+    // Create the two SPI buses
     io::SPI& spiThrottle = io::getSPI<io::Pin::PB_10, io::Pin::PB_15, io::Pin::PB_14>(throttleDevices, deviceCount);
     io::SPI& spiBrake = io::getSPI<io::Pin::PC_10, io::Pin::PC_12, io::Pin::PC_11>(brakeDevices, deviceCount);
 
-    // Configure the systems
+    // Configure the buses
     spiThrottle.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
     spiBrake.configureSPI(SPI_SPEED, io::SPI::SPIMode::SPI_MODE0, SPI_MSB_FIRST);
 

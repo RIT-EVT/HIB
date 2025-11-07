@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _HIB_
+#define _HIB_
 #include <dev/RedundantADC.hpp>
 #include <sys/types.h>
 
@@ -62,3 +63,4 @@ private:
 };
 
 }// namespace HIB
+#endif

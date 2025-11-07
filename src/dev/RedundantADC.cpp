@@ -5,7 +5,7 @@
 
 namespace io = core::io;
 
-// Percantage differences
+// Percentage differences
 // Values are 1% and 5% of 12288 Mv respectively not really though
 constexpr uint16_t LOW_MARGIN = 400;
 constexpr uint16_t HIGH_MARGIN = 800;
