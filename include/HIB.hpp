@@ -1,25 +1,30 @@
-#ifndef _HIB_
-#define _HIB_
+#ifndef HIB_
+#define HIB_
+
 #include <dev/RedundantADC.hpp>
-#include <sys/types.h>
+
+using namespace std;
 
 namespace HIB {
-
-/**
- * Counts that when exceeded throw an error to the VC
- */
-#define COMPARISON_ERROR_COUNT 1
-#define PRECISION_MARGIN_ERROR_COUNT 3
-#define ACCEPTABLE_MARGIN_ERROR_COUNT 5
 
 constexpr size_t payloadLength = 5;
 
 /**
- * HIB header file
+ * The Handlebar Interface Board Takes in a 0.0 to 12.0 volt signal from the throttle and brake
+ * which it then converts to a 16 bit value through its "double-triple" ADC setup. It then sends
+ * this voltage value along with any error codes that were generated to the Vehicle Control Unit
+ * (VCU).
+ *
+ * It reads in the voltage from either the throttle or the brake through one set of three ADCs
+ * that communicate with the microcontroller using SPI. After the controller sets up the devices
+ * they are read in and then averaged and contrasted with the average to find any margin errors.
+ *
+ * The data after being correctly parsed and checked for errors is then sent through CAN to the
+ * VCU for decision-making.
  */
 class HIB {
 public:
-    HIB(DEV::RedundantADC& throttle, DEV::RedundantADC& brake);
+    HIB(RedundantADC& throttle, RedundantADC& brake);
 
     void process();
 
@@ -42,8 +47,8 @@ private:
 
     void readBrakeVoltage();
 
-    DEV::RedundantADC& throttle;
-    DEV::RedundantADC& brake;
+    RedundantADC& throttle;
+    RedundantADC& brake;
 
     /**
      * Payload for CAN transmission.

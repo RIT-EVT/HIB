@@ -1,15 +1,24 @@
-#pragma once
+#ifndef REDUNDANT_ADC_
+#define REDUNDANT_ADC_
 
 #include <dev/ADS8689IPWR.hpp>
 
+/**
+ * Defined limits for the amount of times an error can occur before it is a larger issue
+ */
+#define COMPARISON_ERROR_COUNT 1
+#define PRECISION_MARGIN_ERROR_COUNT 3
+#define ACCEPTABLE_MARGIN_ERROR_COUNT 5
+
 namespace io = core::io;
 
-namespace HIB::DEV {
-
+namespace HIB {
 /**
- * This class allows processing readings from redundant ADCs and checking for errors
+ * An object that takes in 3 different ADS8689IPWR objects to read out and compare their output
+ * voltages. It compares and contrasts these voltages against their average to find the marginal
+ * error for each of them. If the margin error is a little high, too high, or completely off in
+ * one or more of the devices then it will return a corresponding error the HIB object.
  */
-
 class RedundantADC {
 public:
     /**
@@ -43,15 +52,13 @@ public:
      * @param[out] return_val Reference to the variable to store the value read from the ADCs
      * @return RedundantADC::Status The status of the processing.
      */
-    RedundantADC::Status read(uint16_t& return_val) const;
+    Status read(uint16_t& return_val) const;
 
 private:
-    /** Reference to the first ADC. */
     ADS8689IPWR& adc0;
-    /** Reference to the second ADC. */
     ADS8689IPWR& adc1;
-    /** Reference to the third ADC. */
     ADS8689IPWR& adc2;
 };
 
-}// namespace HIB::DEV
+}
+#endif

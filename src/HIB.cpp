@@ -1,9 +1,12 @@
+#include "core/io/CAN.hpp"
+#include "core/io/types/CANMessage.hpp"
+#include "core/utils/log.hpp"
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
 
 namespace HIB {
 
-HIB::HIB(DEV::RedundantADC& throttle, DEV::RedundantADC& brake)
+HIB::HIB(RedundantADC& throttle, RedundantADC& brake)
     : throttle(throttle), brake(brake) {
     // Initialize payload to 0's
     for (uint8_t i = 0; i < payloadLength; i++) {
@@ -62,35 +65,35 @@ void HIB::process() {
 }
 
 void HIB::readThrottleVoltage() {
-    const DEV::RedundantADC::Status status = throttle.read(throttleVoltage); // gets the errors and voltage from the ADC cluster
+    const RedundantADC::Status status = throttle.read(throttleVoltage); // gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
-    if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
         acceptableThrottleMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
         precisionThrottleMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::COMPARISON_ERROR) {
+    if (status == RedundantADC::Status::COMPARISON_ERROR) {
         comparisonThrottleErrors++;
     }
 }
 
 void HIB::readBrakeVoltage() {
-    const DEV::RedundantADC::Status status = brake.read(brakeVoltage); // gets the errors and voltage from the ADC cluster
+    const RedundantADC::Status status = brake.read(brakeVoltage); // gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
-    if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
         acceptableBrakeMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
         precisionBrakeMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::COMPARISON_ERROR) {
+    if (status == RedundantADC::Status::COMPARISON_ERROR) {
         comparisonBrakeErrors++;
     }
 }
