@@ -7,8 +7,11 @@
 namespace io = core::io;
 using namespace HIB;
 
-// Percentage differences
-// Values are approximately 1% and 5% of 12288 Mv, but "approximately" is a stretch
+/* Percentage differences
+ * Values are approximately 1% and 5% of 12288 Mv, but "approximately" is a stretch.
+ * These can be altered as needed in the future after stress testing the ADCs and finding out
+ * how they perform while running on the bike
+ */
 constexpr uint16_t LOW_MARGIN = 400;
 constexpr uint16_t HIGH_MARGIN = 800;
 

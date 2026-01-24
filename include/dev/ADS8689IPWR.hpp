@@ -4,7 +4,7 @@
 #include <core/io/SPI.hpp>
 
 /**
- * R/W Range selection register for changing the range of the ADC from
+ * Read/Write Range selection register for changing the range of the ADC to 0V-12V
  */
 #define RANGE_SEL_REG 0x14
 
@@ -93,7 +93,6 @@ public:
     /**
      * Reads out the voltage from the ADC with a blank command through SPI
      *
-     * @param voltage reference to variable that is storing voltage
      * @return the status of whether the transaction was successful
      */
     uint16_t readVoltage() const;
@@ -101,5 +100,5 @@ private:
     io::SPI& spi;
     const uint8_t deviceNumber;
 };
-}// namespace HIB::DEV
+}
 #endif

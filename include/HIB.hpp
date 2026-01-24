@@ -3,11 +3,10 @@
 
 #include <dev/RedundantADC.hpp>
 
-using namespace std;
-
 namespace HIB {
+#define VCU_CAN_ID 0xD0
 
-constexpr size_t payloadLength = 5;
+constexpr size_t payloadLength = 6;
 
 /**
  * The Handlebar Interface Board Takes in a 0.0 to 12.0 volt signal from the throttle and brake
@@ -26,22 +25,31 @@ class HIB {
 public:
     HIB(RedundantADC& throttle, RedundantADC& brake);
 
-    void process();
+    /**
+     * Reads the voltages and errors from the redundant ADCs and returns a can message containing
+     * the data from each read
+     * @return The can message that should be transmitted
+     */
+    io::CANMessage process();
 
-    uint8_t payload[payloadLength];
-    uint16_t throttleVoltage = 0;
-    uint16_t brakeVoltage = 0;
-
-    // Counters for throttle errors
-    uint64_t acceptableThrottleMarginErrors = 0;
-    uint64_t precisionThrottleMarginErrors = 0;
-    uint64_t comparisonThrottleErrors = 0;
-
-    // Counters for brake errors
-    uint64_t acceptableBrakeMarginErrors = 0;
-    uint64_t precisionBrakeMarginErrors = 0;
-    uint64_t comparisonBrakeErrors = 0;
-
+    /**
+     * Payload for CAN transmission.
+     * Byte 0: MSB for Throttle Voltage
+     * Byte 1: LSB for Throttle Voltage
+     * Byte 2: MSB for Brake Voltage
+     * Byte 3: LSB for Brake Voltage
+     * Byte 4: Error Byte for Throttle
+     * Byte 5: Error Byte for Brake
+     * Error Byte Layout: 0: No Error, 1: Precision Error, 2: Margin Error, 3: Comparison Error
+     */
+    struct {
+        uint8_t throttleVoltageMSB = 0;
+        uint8_t throttleVoltageLSB = 0;
+        uint8_t brakeVoltageMSB = 0;
+        uint8_t brakeVoltageLSB = 0;
+        uint8_t throttleError = 0;
+        uint8_t brakeError = 0;
+    } hibPayload;
 private:
     void readThrottleVoltage();
 
@@ -50,22 +58,18 @@ private:
     RedundantADC& throttle;
     RedundantADC& brake;
 
-    /**
-     * Payload for CAN transmission.
-     * Byte 0: MSB for Throttle Voltage
-     * Byte 1: LSB for Throttle Voltage
-     * Byte 2: MSB for Brake Voltage
-     * Byte 3: LSB for Brake Voltage
-     * Byte 4: Error Byte for triggering a shutdown
-     * Byte 4 layout: X X X X X X X X
-     *                7 6 5 4 3 2 1 0
-     *                            ^ ^
-     *                            | \
-     *           ________________/   \__________________
-     *           Brake Error Bit      Throttle Error Bit
-     */
-    uint8_t data[payloadLength];
-};
+    uint16_t throttleVoltage = 0;
+    uint16_t brakeVoltage = 0;
 
-}// namespace HIB
+    // Counters for throttle errors
+    uint32_t acceptableThrottleMarginErrors = 0;
+    uint32_t precisionThrottleMarginErrors = 0;
+    uint32_t comparisonThrottleErrors = 0;
+
+    // Counters for brake errors
+    uint32_t acceptableBrakeMarginErrors = 0;
+    uint32_t precisionBrakeMarginErrors = 0;
+    uint32_t comparisonBrakeErrors = 0;
+};
+}
 #endif

@@ -1,7 +1,14 @@
 /**
- * REV3-HIB main target.
+ * REV3-HIB main target. Runs the setup for the SPI, UART, and CAN buses. Creates the ADS8689IPWR,
+ * RedundantADC, and HIB objects and then runs the hib.process(). Optionally logs out the data stream
+ * from the HIB if the logger is enabled.
+ *
+ * The goal of this device is to read in voltage data from the throttle and the brake through a pair
+ * of three redundant 16 bit ADCs. These readings are then compared to each other to find the
+ * average voltage and any substantial errors or offset in the readings of each device. If the
+ * errors are too great, then the HIB will send an error signal to the VCU, otherwise it just
+ * data pertaining to the voltage of the break and the throttle
  */
-
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
 #include <dev/ADS8689IPWR.hpp>
@@ -12,16 +19,16 @@
 #include <core/io/UART.hpp>
 
 namespace io = core::io;
+namespace time = core::time;
 
+namespace HIB {
 constexpr uint8_t deviceCount = 3;
 
 io::GPIO* throttleDevices[deviceCount];
 io::GPIO* brakeDevices[deviceCount];
 
-namespace HIB {
 void canIRQHandler(io::CANMessage& message, void* priv) {
-    core::log::LOGGER.log(
-        core::log::Logger::LogLevel::INFO,
+    LOG_INFO(
         "Message received\r\n"
         "Message id: 0x%X \r\n"
         "Message length: %d\r\n"
@@ -41,32 +48,18 @@ int main() {
     // Initialize system
     core::platform::init();
 
-    // Initialize UART
+    // Setup UART
     io::UART& uart = io::getUART<io::Pin::UART_TX, io::Pin::UART_RX>(9600);
-
     core::log::LOGGER.setUART(&uart);
     core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
 
-    // Initialize CAN
-    io::CAN& can = io::getCAN<io::Pin::PA_12, io::Pin::PA_11>(true);
-
-    // Brake ADC setup
+    // Set up each chip select pin
     brakeDevices[0] = &io::getGPIO<BRAKE_0>(io::GPIO::Direction::OUTPUT);
     brakeDevices[0]->writePin(io::GPIO::State::HIGH);
     brakeDevices[1] = &io::getGPIO<BRAKE_1>(io::GPIO::Direction::OUTPUT);
     brakeDevices[1]->writePin(io::GPIO::State::HIGH);
     brakeDevices[2] = &io::getGPIO<BRAKE_2>(io::GPIO::Direction::OUTPUT);
     brakeDevices[2]->writePin(io::GPIO::State::HIGH);
-
-    // Initialize the brake SPI array
-    io::SPI& spiBrake = io::getSPI<BRAKE_SPI_SCK, BRAKE_SPI_MOSI, BRAKE_SPI_MISO>(brakeDevices, deviceCount);
-    spiBrake.configureSPI(SPI_SPEED, SPI_MODE, SPI_MSB_FIRST);
-
-    // Initialize each brake ADC and then initialize the redundant ADC
-    ADS8689IPWR brakeADC1 = ADS8689IPWR(spiBrake, 0);
-    ADS8689IPWR brakeADC2 = ADS8689IPWR(spiBrake, 1);
-    ADS8689IPWR brakeADC3 = ADS8689IPWR(spiBrake, 2);
-    RedundantADC brake = RedundantADC(brakeADC1, brakeADC2, brakeADC3);
 
     throttleDevices[0] = &io::getGPIO<THROTTLE_0>(io::GPIO::Direction::OUTPUT);
     throttleDevices[0]->writePin(io::GPIO::State::HIGH);
@@ -75,24 +68,35 @@ int main() {
     throttleDevices[2] = &io::getGPIO<THROTTLE_2>(io::GPIO::Direction::OUTPUT);
     throttleDevices[2]->writePin(io::GPIO::State::HIGH);
 
-    // Initialize the throttle SPI array
+    // Create the two SPI buses
     io::SPI& spiThrottle = io::getSPI<THROTTLE_SPI_SCK, THROTTLE_SPI_MOSI, THROTTLE_SPI_MISO>(throttleDevices, deviceCount);
     spiThrottle.configureSPI(SPI_SPEED, SPI_MODE, SPI_MSB_FIRST);
+    io::SPI& spiBrake = io::getSPI<BRAKE_SPI_SCK, BRAKE_SPI_MOSI, BRAKE_SPI_MISO>(brakeDevices, deviceCount);
+    spiBrake.configureSPI(SPI_SPEED, SPI_MODE, SPI_MSB_FIRST);
 
-    // Initialize each throttle ADC and then initialize the redundant ADC
-    ADS8689IPWR throttleADC1 = ADS8689IPWR(spiThrottle, 0);
-    ADS8689IPWR throttleADC2 = ADS8689IPWR(spiThrottle, 1);
-    ADS8689IPWR throttleADC3 = ADS8689IPWR(spiThrottle, 2);
-    RedundantADC throttle = RedundantADC(throttleADC1, throttleADC2, throttleADC3);
+    // Create all 6 ADS8689IPWR objects
+    auto throttleAdc1 = ADS8689IPWR(spiThrottle, 0);
+    auto throttleAdc2 = ADS8689IPWR(spiThrottle, 1);
+    auto throttleAdc3 = ADS8689IPWR(spiThrottle, 2);
+    auto brakeAdc1 = ADS8689IPWR(spiBrake, 0);
+    auto brakeAdc2 = ADS8689IPWR(spiBrake, 1);
+    auto brakeAdc3 = ADS8689IPWR(spiBrake, 2);
 
-    // Finally create the HIB object to begin processing data
+    // Initialize the 2 redundant ADCs
+    auto throttle = RedundantADC(throttleAdc1, throttleAdc2, throttleAdc3);
+    auto brake = RedundantADC(brakeAdc1, brakeAdc2, brakeAdc3);
+
+    // Initialize the HIB object to begin processing data
     HIB hib = HIB(throttle, brake);
+
+    // Initialize CAN
+    io::CAN& can = io::getCAN<CAN_TX, CAN_RX>(true);
 
     // Try to join the network
     io::CAN::CANStatus result = can.connect();
 
     // ID for HIB is 0x0D0
-    io::CANMessage transmit_message(0x0D0, 5, hib.payload, false);
+    io::CANMessage transmit_message(0x0D0, 0, {}, false);
 
     // Try to send the message
     result = can.transmit(transmit_message);
@@ -103,17 +107,21 @@ int main() {
     // Begin CAN Test
     LOG_INFO("Starting CAN testing\r\n");
 
-    // Main loop
+    uint8_t payload[6] = {0};
+
+    // Read voltage and errors and send them through the CAN bus
     while (true) {
         // Process the voltage
-        hib.process();
-        transmit_message = io::CANMessage(0x0D0, 5, hib.payload, false);
+        transmit_message = hib.process();
 
         // Try to send the message
         result = can.transmit(transmit_message);
         if (result != io::CAN::CANStatus::OK) {
             LOG_INFO("Failed to transmit message\r\n");
         }
+
+        // Optional delay to make the logs easier to read
+        // time::wait(5000);
     }
 
     return 0;

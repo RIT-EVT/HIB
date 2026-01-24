@@ -4,11 +4,17 @@
 #include <dev/ADS8689IPWR.hpp>
 
 /**
- * Defined limits for the amount of times an error can occur before it is a larger issue
+ * Defined limits for the amount of times an error can occur before a restart is required
  */
 #define COMPARISON_ERROR_COUNT 1
 #define PRECISION_MARGIN_ERROR_COUNT 3
 #define ACCEPTABLE_MARGIN_ERROR_COUNT 5
+
+/**
+ * CAN TX and RX pins
+ */
+#define CAN_TX io::Pin::PA_12
+#define CAN_RX io::Pin::PA_11
 
 namespace io = core::io;
 
