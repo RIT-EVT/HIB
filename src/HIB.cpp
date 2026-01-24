@@ -1,7 +1,8 @@
-#include "core/io/types/CANMessage.hpp"
 #include "core/utils/log.hpp"
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
+
+namespace io = core::io;
 
 namespace HIB {
 

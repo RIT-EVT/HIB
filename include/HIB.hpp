@@ -2,6 +2,10 @@
 #define HIB_
 
 #include <dev/RedundantADC.hpp>
+#include "core/io/types/CANMessage.hpp"
+#include <cstddef>
+
+namespace io = core::io;
 
 namespace HIB {
 #define VCU_CAN_ID 0xD0

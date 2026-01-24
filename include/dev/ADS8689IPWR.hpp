@@ -38,7 +38,7 @@
  * EVT info logger macro
  * @param text The formatted text that should be logged out
  */
-#define LOG_INFO(text, ...) core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, text, __VA_ARGS__)
+#define LOG_INFO(text, ...) core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, text, ##__VA_ARGS__)
 
 /**
  * Brake Chip Select Pins

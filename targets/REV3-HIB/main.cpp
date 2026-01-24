@@ -107,8 +107,6 @@ int main() {
     // Begin CAN Test
     LOG_INFO("Starting CAN testing\r\n");
 
-    uint8_t payload[6] = {0};
-
     // Read voltage and errors and send them through the CAN bus
     while (true) {
         // Process the voltage
