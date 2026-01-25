@@ -21,7 +21,6 @@
 namespace io = core::io;
 namespace time = core::time;
 
-namespace HIB {
 constexpr uint8_t deviceCount = 3;
 
 io::GPIO* throttleDevices[deviceCount];
@@ -75,19 +74,19 @@ int main() {
     spiBrake.configureSPI(SPI_SPEED, SPI_MODE, SPI_MSB_FIRST);
 
     // Create all 6 ADS8689IPWR objects
-    auto throttleAdc1 = ADS8689IPWR(spiThrottle, 0);
-    auto throttleAdc2 = ADS8689IPWR(spiThrottle, 1);
-    auto throttleAdc3 = ADS8689IPWR(spiThrottle, 2);
-    auto brakeAdc1 = ADS8689IPWR(spiBrake, 0);
-    auto brakeAdc2 = ADS8689IPWR(spiBrake, 1);
-    auto brakeAdc3 = ADS8689IPWR(spiBrake, 2);
+    auto throttleAdc1 = HIB::ADS8689IPWR(spiThrottle, 0);
+    auto throttleAdc2 = HIB::ADS8689IPWR(spiThrottle, 1);
+    auto throttleAdc3 = HIB::ADS8689IPWR(spiThrottle, 2);
+    auto brakeAdc1 = HIB::ADS8689IPWR(spiBrake, 0);
+    auto brakeAdc2 = HIB::ADS8689IPWR(spiBrake, 1);
+    auto brakeAdc3 = HIB::ADS8689IPWR(spiBrake, 2);
 
     // Initialize the 2 redundant ADCs
-    auto throttle = RedundantADC(throttleAdc1, throttleAdc2, throttleAdc3);
-    auto brake = RedundantADC(brakeAdc1, brakeAdc2, brakeAdc3);
+    auto throttle = HIB::RedundantADC(throttleAdc1, throttleAdc2, throttleAdc3);
+    auto brake = HIB::RedundantADC(brakeAdc1, brakeAdc2, brakeAdc3);
 
     // Initialize the HIB object to begin processing data
-    HIB hib = HIB(throttle, brake);
+    auto hib = HIB::HIB(throttle, brake);
 
     // Initialize CAN
     io::CAN& can = io::getCAN<CAN_TX, CAN_RX>(true);
@@ -123,5 +122,4 @@ int main() {
     }
 
     return 0;
-}
 }
