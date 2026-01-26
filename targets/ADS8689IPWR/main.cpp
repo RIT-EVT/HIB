@@ -18,7 +18,6 @@ constexpr uint8_t deviceCount = 3;
 io::GPIO* throttleDevices[deviceCount];
 io::GPIO* brakeDevices[deviceCount];
 
-namespace HIB {
 int main() {
     // Initialize system
     core::platform::init();
@@ -50,12 +49,12 @@ int main() {
     spiBrake.configureSPI(SPI_SPEED, SPI_MODE, SPI_MSB_FIRST);
 
     // Create all 6 ADS8689IPWR objects
-    auto throttleAdc1 = ADS8689IPWR(spiThrottle, 0);
-    auto throttleAdc2 = ADS8689IPWR(spiThrottle, 1);
-    auto throttleAdc3 = ADS8689IPWR(spiThrottle, 2);
-    auto brakeAdc1 = ADS8689IPWR(spiBrake, 0);
-    auto brakeAdc2 = ADS8689IPWR(spiBrake, 1);
-    auto brakeAdc3 = ADS8689IPWR(spiBrake, 2);
+    auto throttleAdc1 = HIB::ADS8689IPWR(spiThrottle, 0);
+    auto throttleAdc2 = HIB::ADS8689IPWR(spiThrottle, 1);
+    auto throttleAdc3 = HIB::ADS8689IPWR(spiThrottle, 2);
+    auto brakeAdc1 = HIB::ADS8689IPWR(spiBrake, 0);
+    auto brakeAdc2 = HIB::ADS8689IPWR(spiBrake, 1);
+    auto brakeAdc3 = HIB::ADS8689IPWR(spiBrake, 2);
 
     // Test each adc one by one on loop
     while (true) {
@@ -70,5 +69,4 @@ int main() {
     }
 
     return 0;
-}
 }
