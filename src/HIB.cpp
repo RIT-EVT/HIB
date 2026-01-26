@@ -1,96 +1,104 @@
+#include "core/utils/log.hpp"
 #include <HIB.hpp>
 #include <dev/RedundantADC.hpp>
 
+namespace io = core::io;
+
 namespace HIB {
 
-HIB::HIB(DEV::RedundantADC& throttle, DEV::RedundantADC& brake)
-    : throttle(throttle), brake(brake) {
-    // Initialize payload to 0's
-    for (uint8_t i = 0; i < payloadLength; i++) {
-        payload[i] = 0;
-    }
-}
+HIB::HIB(RedundantADC& throttle, RedundantADC& brake)
+    : throttle(throttle), brake(brake) {}
 
 // Reads the 2 sets of 3 ADCs and processes their errors while packaging them for CAN
-void HIB::process() {
+io::CANMessage HIB::process() {
     // Read in the voltages from the throttle
     readThrottleVoltage();
-    readBrakeVoltage();
+    // readBrakeVoltage();
 
-    if (throttleVoltage < 300) {
+    if (throttleVoltage < 475) {
         throttleVoltage = 0;
     }
 
-    if (brakeVoltage < 300) {
+    if (brakeVoltage < 450) {
         brakeVoltage = 0;
     }
 
-    payload[0] = static_cast<uint8_t>(throttleVoltage >> 8 & 0xFF);
-    payload[1] = static_cast<uint8_t>(throttleVoltage & 0xFF);
-    payload[2] = static_cast<uint8_t>(brakeVoltage >> 8 & 0xFF);
-    payload[3] = static_cast<uint8_t>(brakeVoltage & 0xFF);
+    hibPayload.throttleVoltageMSB = static_cast<uint8_t>(throttleVoltage >> 8 & 0xFF);
+    hibPayload.throttleVoltageLSB = static_cast<uint8_t>(throttleVoltage & 0xFF);
+    hibPayload.brakeVoltageMSB = static_cast<uint8_t>(brakeVoltage >> 8 & 0xFF);
+    hibPayload.brakeVoltageLSB = static_cast<uint8_t>(brakeVoltage & 0xFF);
 
     if (acceptableThrottleMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT) {
         acceptableThrottleMarginErrors = ACCEPTABLE_MARGIN_ERROR_COUNT + 1;
-        payload[4] |= 0b01;
+        hibPayload.throttleError = 1;
     }
 
     if (acceptableBrakeMarginErrors > ACCEPTABLE_MARGIN_ERROR_COUNT) {
         acceptableBrakeMarginErrors = ACCEPTABLE_MARGIN_ERROR_COUNT + 1;
-        payload[4] |= 0b10;
+        hibPayload.brakeError = 1;
     }
 
     if (precisionThrottleMarginErrors > PRECISION_MARGIN_ERROR_COUNT) {
         precisionThrottleMarginErrors = PRECISION_MARGIN_ERROR_COUNT + 1;
-        payload[4] |= 0b01;
+        hibPayload.throttleError = 2;
     }
 
     if (precisionBrakeMarginErrors > PRECISION_MARGIN_ERROR_COUNT) {
         precisionBrakeMarginErrors = PRECISION_MARGIN_ERROR_COUNT + 1;
-        payload[4] |= 0b10;
+        hibPayload.brakeError = 2;
     }
 
     if (comparisonThrottleErrors > COMPARISON_ERROR_COUNT) {
         comparisonThrottleErrors = COMPARISON_ERROR_COUNT + 1;
-        payload[4] |= 0b01;
+        hibPayload.throttleError = 3;
     }
 
     if (comparisonBrakeErrors > COMPARISON_ERROR_COUNT) {
         comparisonBrakeErrors = COMPARISON_ERROR_COUNT + 1;
-        payload[4] |= 0b10;
+        hibPayload.throttleError = 3;
     }
+
+    uint8_t payload[payloadLength];
+    payload[0] = hibPayload.throttleVoltageMSB;
+    payload[1] = hibPayload.throttleVoltageLSB;
+    payload[2] = hibPayload.brakeVoltageMSB;
+    payload[3] = hibPayload.brakeVoltageLSB;
+    payload[4] = hibPayload.throttleError;
+    payload[5] = hibPayload.brakeError;
+
+    return {VCU_CAN_ID, payloadLength, payload, false};
 }
 
 void HIB::readThrottleVoltage() {
-    const DEV::RedundantADC::Status status = throttle.read(throttleVoltage); // gets the errors and voltage from the ADC cluster
+    const RedundantADC::Status status = throttle.read(throttleVoltage); // gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
-    if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
         acceptableThrottleMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
         precisionThrottleMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::COMPARISON_ERROR) {
+    if (status == RedundantADC::Status::COMPARISON_ERROR) {
         comparisonThrottleErrors++;
     }
 }
 
 void HIB::readBrakeVoltage() {
-    const DEV::RedundantADC::Status status = brake.read(brakeVoltage); // gets the errors and voltage from the ADC cluster
+    const RedundantADC::Status status = brake.read(brakeVoltage); // gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
-    if (status == DEV::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
         acceptableBrakeMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
+    if (status == RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
         precisionBrakeMarginErrors++;
     }
 
-    if (status == DEV::RedundantADC::Status::COMPARISON_ERROR) {
+    if (status == RedundantADC::Status::COMPARISON_ERROR) {
         comparisonBrakeErrors++;
     }
 }
