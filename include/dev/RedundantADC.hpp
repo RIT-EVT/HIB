@@ -66,5 +66,5 @@ private:
     ADS8689IPWR& adc2;
 };
 
-}
+}// namespace HIB
 #endif

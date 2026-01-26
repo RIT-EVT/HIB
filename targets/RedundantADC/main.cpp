@@ -2,12 +2,12 @@
  * RedundantADC test target. Run this on the board to test the functionality of the RedundantADC
  * class and the physical setup of the two redundant adc setups on thd board
  */
-#include <core/io/ADC.hpp>
 #include <HIB.hpp>
+#include <core/io/ADC.hpp>
 #include <core/io/GPIO.hpp>
 #include <core/manager.hpp>
-#include <dev/RedundantADC.hpp>
 #include <core/utils/log.hpp>
+#include <dev/RedundantADC.hpp>
 
 namespace io = core::io;
 namespace time = core::time;

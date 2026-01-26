@@ -1,8 +1,8 @@
 #include <cmath>
 #include <core/utils/log.hpp>
 
-#include <dev/RedundantADC.hpp>
 #include <dev/ADS8689IPWR.hpp>
+#include <dev/RedundantADC.hpp>
 
 namespace io = core::io;
 using namespace HIB;
@@ -16,7 +16,7 @@ constexpr uint16_t LOW_MARGIN = 400;
 constexpr uint16_t HIGH_MARGIN = 800;
 
 RedundantADC::RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2)
-: adc0(adc0), adc1(adc1), adc2(adc2) {}
+    : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
 RedundantADC::Status RedundantADC::read(uint16_t& return_val) const {
     // Read in the millivoltage of each ADC

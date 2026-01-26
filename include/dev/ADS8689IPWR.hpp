@@ -26,7 +26,8 @@
 /**
  * Defined No-Operation command
  */
-#define NOP {EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE}
+#define NOP \
+    { EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE, EMPTY_BYTE }
 
 /**
  * The maximum voltage that can be read in by the ADC | Used for transforming the given 2 bytes
@@ -96,9 +97,10 @@ public:
      * @return the status of whether the transaction was successful
      */
     uint16_t readVoltage() const;
+
 private:
     io::SPI& spi;
     const uint8_t deviceNumber;
 };
-}
+}// namespace HIB
 #endif

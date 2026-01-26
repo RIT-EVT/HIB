@@ -10,13 +10,13 @@
  * data pertaining to the voltage of the break and the throttle
  */
 #include <HIB.hpp>
-#include <dev/RedundantADC.hpp>
-#include <dev/ADS8689IPWR.hpp>
-#include <core/manager.hpp>
-#include <core/utils/log.hpp>
 #include <core/io/GPIO.hpp>
 #include <core/io/SPI.hpp>
 #include <core/io/UART.hpp>
+#include <core/manager.hpp>
+#include <core/utils/log.hpp>
+#include <dev/ADS8689IPWR.hpp>
+#include <dev/RedundantADC.hpp>
 
 namespace io = core::io;
 namespace time = core::time;
@@ -33,14 +33,13 @@ void canIRQHandler(io::CANMessage& message, void* priv) {
         "Message length: %d\r\n"
         "Message contents: ",
         message.getId(),
-        message.getDataLength()
-    );
+        message.getDataLength());
 
     uint8_t* message_payload = message.getPayload();
     for (int i = 0; i < message.getDataLength(); i++) {
-        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"0x%02X ", message_payload[i]);
+        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "0x%02X ", message_payload[i]);
     }
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO,"\r\n\r\n");
+    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "\r\n\r\n");
 }
 
 int main() {

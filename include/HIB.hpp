@@ -1,9 +1,9 @@
 #ifndef HIB_
 #define HIB_
 
-#include <dev/RedundantADC.hpp>
 #include "core/io/types/CANMessage.hpp"
 #include <cstddef>
+#include <dev/RedundantADC.hpp>
 
 namespace io = core::io;
 
@@ -54,6 +54,7 @@ public:
         uint8_t throttleError = 0;
         uint8_t brakeError = 0;
     } hibPayload;
+
 private:
     void readThrottleVoltage();
 
@@ -75,5 +76,5 @@ private:
     uint32_t precisionBrakeMarginErrors = 0;
     uint32_t comparisonBrakeErrors = 0;
 };
-}
+}// namespace HIB
 #endif

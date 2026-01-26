@@ -21,7 +21,7 @@ ADS8689IPWR::ADS8689IPWR(io::SPI& spi, const uint8_t deviceNumber) : spi(spi), d
 }
 
 // Oleg function (old read was narrowing uint32 -> uint8 or uint16)
-uint16_t ADS8689IPWR::readVoltage() const{
+uint16_t ADS8689IPWR::readVoltage() const {
     uint8_t bytes[4] = {0};
     spi.startTransmission(deviceNumber);
     spi.read(bytes, 4);
@@ -33,4 +33,4 @@ uint16_t ADS8689IPWR::readVoltage() const{
 
     return static_cast<uint16_t>(scaled);
 }
-}
+}// namespace HIB

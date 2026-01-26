@@ -70,7 +70,7 @@ io::CANMessage HIB::process() {
 }
 
 void HIB::readThrottleVoltage() {
-    const RedundantADC::Status status = throttle.read(throttleVoltage); // gets the errors and voltage from the ADC cluster
+    const RedundantADC::Status status = throttle.read(throttleVoltage);// gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
     if (status == RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
@@ -87,7 +87,7 @@ void HIB::readThrottleVoltage() {
 }
 
 void HIB::readBrakeVoltage() {
-    const RedundantADC::Status status = brake.read(brakeVoltage); // gets the errors and voltage from the ADC cluster
+    const RedundantADC::Status status = brake.read(brakeVoltage);// gets the errors and voltage from the ADC cluster
 
     // Increment the status of each error if it is received
     if (status == RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
@@ -103,4 +103,4 @@ void HIB::readBrakeVoltage() {
     }
 }
 
-}
+}// namespace HIB
