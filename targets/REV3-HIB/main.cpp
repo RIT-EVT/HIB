@@ -93,6 +93,9 @@ int main() {
 
     // Try to join the network
     io::CAN::CANStatus result = can.connect();
+    if (result != io::CAN::CANStatus::OK) {
+        LOG_INFO("Failed to connect to the CAN network.\r\n");
+    }
 
     // ID for HIB is 0x0D0
     io::CANMessage transmit_message(0x0D0, 0, {}, false);
