@@ -13,13 +13,13 @@ HIB::HIB(RedundantADC& throttle, RedundantADC& brake)
 io::CANMessage HIB::process() {
     // Read in the voltages from the throttle
     readThrottleVoltage();
-    // readBrakeVoltage();
+    readBrakeVoltage(); // Brake is currently not implemented, but read the ADCs anyways
 
-    if (throttleVoltage < 475) {
+    if (throttleVoltage < VOLTAGE_DEADZONE) {
         throttleVoltage = 0;
     }
 
-    if (brakeVoltage < 450) {
+    if (brakeVoltage < VOLTAGE_DEADZONE) {
         brakeVoltage = 0;
     }
 
@@ -66,7 +66,7 @@ io::CANMessage HIB::process() {
     payload[4] = hibPayload.throttleError;
     payload[5] = hibPayload.brakeError;
 
-    return {VCU_CAN_ID, payloadLength, payload, false};
+    return io::CANMessage{HIB_MESSAGE_ID, payloadLength, payload, false};
 }
 
 void HIB::readThrottleVoltage() {

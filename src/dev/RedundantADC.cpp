@@ -76,10 +76,5 @@ RedundantADC::Status RedundantADC::read(uint16_t& return_val) const {
 
     return_val = 0;
 
-    // Zero out adc's
-    adcValues[0] = 0;
-    adcValues[1] = 0;
-    adcValues[2] = 0;
-
     return RedundantADC::Status::COMPARISON_ERROR;
 }

@@ -8,7 +8,32 @@
 namespace io = core::io;
 
 namespace HIB {
-#define VCU_CAN_ID 0xD0
+/**
+ * Id of the message being sent from the HIB
+ */
+#define HIB_MESSAGE_ID 0xD0
+
+/**
+ * Deadzone for the ADCs so they do not send a signal before the throttle is twisted
+ */
+#define VOLTAGE_DEADZONE 475
+
+/**
+ * Start Switch
+ */
+#define START io::Pin::PB_1
+
+/**
+ * Throttle Switch
+ */
+#define THROTTLE_SWITCH io::Pin::PB_2
+
+/**
+ * Forward Enable
+ */
+#define FORWARD_ENABLE_0 io::Pin::PB_4
+#define FORWARD_ENABLE_1 io::Pin::PB_5
+#define FORWARD_ENABLE_2 io::Pin::PB_6
 
 constexpr size_t payloadLength = 6;
 

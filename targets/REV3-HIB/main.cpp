@@ -26,22 +26,6 @@ constexpr uint8_t deviceCount = 3;
 io::GPIO* throttleDevices[deviceCount];
 io::GPIO* brakeDevices[deviceCount];
 
-void canIRQHandler(io::CANMessage& message, void* priv) {
-    LOG_INFO(
-        "Message received\r\n"
-        "Message id: 0x%X \r\n"
-        "Message length: %d\r\n"
-        "Message contents: ",
-        message.getId(),
-        message.getDataLength());
-
-    uint8_t* message_payload = message.getPayload();
-    for (int i = 0; i < message.getDataLength(); i++) {
-        core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "0x%02X ", message_payload[i]);
-    }
-    core::log::LOGGER.log(core::log::Logger::LogLevel::INFO, "\r\n\r\n");
-}
-
 int main() {
     // Initialize system
     core::platform::init();
@@ -51,7 +35,14 @@ int main() {
     core::log::LOGGER.setUART(&uart);
     core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
 
-    // Set up each chip select pin
+    // // Setup GPIO pins for the throttle switch, start, and forward enable
+    // auto throttleSwitch =  &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
+    // auto start = &io::getGPIO<START>(io::GPIO::Direction::INPUT);
+    // auto forwardEnable0 = &io::getGPIO<FORWARD_ENABLE_0>(io::GPIO::Direction::INPUT);
+    // auto forwardEnable1 = &io::getGPIO<FORWARD_ENABLE_1>(io::GPIO::Direction::INPUT);
+    // auto forwardEnable2 = &io::getGPIO<FORWARD_ENABLE_2>(io::GPIO::Direction::INPUT);
+
+    // Set up each chip select pink
     brakeDevices[0] = &io::getGPIO<BRAKE_0>(io::GPIO::Direction::OUTPUT);
     brakeDevices[0]->writePin(io::GPIO::State::HIGH);
     brakeDevices[1] = &io::getGPIO<BRAKE_1>(io::GPIO::Direction::OUTPUT);
@@ -103,13 +94,12 @@ int main() {
     result = can.transmit(transmit_message);
     if (result != io::CAN::CANStatus::OK) {
         LOG_INFO("Failed to transmit message\r\n");
+    } else {
+        LOG_INFO("Transmitted message.\r\n");
     }
 
-    // Begin CAN Test
-    LOG_INFO("Starting CAN testing\r\n");
-
     // Read voltage and errors and send them through the CAN bus
-    while (true) {
+    while(true) {
         // Process the voltage
         transmit_message = hib.process();
 
@@ -119,7 +109,16 @@ int main() {
             LOG_INFO("Failed to transmit message\r\n");
         }
 
-        // Optional delay to make the logs easier to read
+        // Uncomment to print results through UART when a P-CAN dongle is unavailable
+        // io::CANMessage message;
+        // auto status = can.receive(&message);
+        // uint8_t* payload = message.getPayload();
+        // LOG_INFO("Throttle Voltage: %imV\r\n"
+        //          "Brake Voltage: %imV\r\n"
+        //          "Error Information: %x\r\n",
+        //          (payload[0] << 8) + payload[1],
+        //          (payload[2] << 8) + payload[3],
+        //          payload[4]);
         // time::wait(5000);
     }
 
