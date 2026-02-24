@@ -99,7 +99,7 @@ int main() {
     }
 
     // Read voltage and errors and send them through the CAN bus
-    while(true) {
+    while (true) {
         // Process the voltage
         transmit_message = hib.process();
 
