@@ -115,10 +115,12 @@ int main() {
         // uint8_t* payload = message.getPayload();
         // LOG_INFO("Throttle Voltage: %imV\r\n"
         //          "Brake Voltage: %imV\r\n"
-        //          "Error Information: %x\r\n",
+        //          "Throttle Error Information: %x\r\n",
+        //          "Brake Error Information: %x\r\n",
         //          (payload[0] << 8) + payload[1],
         //          (payload[2] << 8) + payload[3],
-        //          payload[4]);
+        //          payload[4],
+        //          payload[5]);
         // time::wait(5000);
     }
 
