@@ -13,7 +13,7 @@ HIB::HIB(RedundantADC& throttle, RedundantADC& brake)
 io::CANMessage HIB::process() {
     // Read in the voltages from the throttle
     readThrottleVoltage();
-    readBrakeVoltage(); // Brake is currently not implemented, but read the ADCs anyways
+    readBrakeVoltage();// Brake is currently not implemented, but read the ADCs anyways
 
     if (throttleVoltage < VOLTAGE_DEADZONE) {
         throttleVoltage = 0;
