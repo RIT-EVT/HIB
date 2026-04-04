@@ -1,13 +1,5 @@
 /**
- * REV3-HIB main target. Runs the setup for the SPI, UART, and CAN buses. Creates the ADS8689IPWR,
- * RedundantADC, and HIB objects and then runs the hib.process(). Optionally logs out the data stream
- * from the HIB if the logger is enabled.
- *
- * The goal of this device is to read in voltage data from the throttle and the brake through a pair
- * of three redundant 16 bit ADCs. These readings are then compared to each other to find the
- * average voltage and any substantial errors or offset in the readings of each device. If the
- * errors are too great, then the HIB will send an error signal to the VCU, otherwise it just
- * data pertaining to the voltage of the break and the throttle
+ * Self test main file for the HIB. This will pull the self test pins
  */
 #include <HIB.hpp>
 #include <core/io/GPIO.hpp>
@@ -38,13 +30,55 @@ int main() {
     // Setup GPIO pins for the throttle switch, start, and forward enable to check before
     // processing and sending anything to the VCU. (If any of these are false, then the
     // throttle should be cut)
-    auto throttleSwitch =  &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
+    auto throttleSwitch = &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
     auto start = &io::getGPIO<START>(io::GPIO::Direction::INPUT);
-    auto forwardEnable0 = &io::getGPIO<FORWARD_ENABLE_0>(io::GPIO::Direction::INPUT);
     auto forwardEnable1 = &io::getGPIO<FORWARD_ENABLE_1>(io::GPIO::Direction::INPUT);
     auto forwardEnable2 = &io::getGPIO<FORWARD_ENABLE_2>(io::GPIO::Direction::INPUT);
+    auto forwardEnable3 = &io::getGPIO<FORWARD_ENABLE_3>(io::GPIO::Direction::INPUT);
 
-    // Set up each chip select pink
+    // Short and open check pins should he high until they are pulled low when an error occurs
+    auto nshort1 = &io::getGPIO<NSHORT_1>(io::GPIO::Direction::INPUT);
+    nshort1->writePin(io::GPIO::State::HIGH);
+    auto nshort2 = &io::getGPIO<NSHORT_2>(io::GPIO::Direction::INPUT);
+    nshort2->writePin(io::GPIO::State::HIGH);
+    auto nopen1 = &io::getGPIO<NOPEN_1>(io::GPIO::Direction::INPUT);
+    nopen1->writePin(io::GPIO::State::HIGH);
+    auto nopen2 = &io::getGPIO<NOPEN_2>(io::GPIO::Direction::INPUT);
+    nopen2->writePin(io::GPIO::State::HIGH);
+
+    // Throttle RVS pins for checking its activation state
+    auto throttleRvs0 = &io::getGPIO<THROTTLE_RVS0>(io::GPIO::Direction::INPUT);
+    auto throttleRvs1 = &io::getGPIO<THROTTLE_RVS1>(io::GPIO::Direction::INPUT);
+    auto throttleRvs2 = &io::getGPIO<THROTTLE_RVS2>(io::GPIO::Direction::INPUT);
+
+    // Brake RVS pins for checking its activation state
+    auto brakeRvs0 = &io::getGPIO<BRAKE_RVS0>(io::GPIO::Direction::INPUT);
+    auto brakeRvs1 = &io::getGPIO<BRAKE_RVS1>(io::GPIO::Direction::INPUT);
+    auto brakeRvs2 = &io::getGPIO<BRAKE_RVS2>(io::GPIO::Direction::INPUT);
+
+    // Debug LED pins for testing
+    auto debugLed1 = &io::getGPIO<DEBUG_LED_1>(io::GPIO::Direction::OUTPUT);
+    auto debugLed2 = &io::getGPIO<DEBUG_LED_1>(io::GPIO::Direction::OUTPUT);
+
+    // Serial I/O pins
+    auto swdio = &io::getGPIO<SWDIO>(io::GPIO::Direction::OUTPUT);
+    auto swo = &io::getGPIO<SWO>(io::GPIO::Direction::OUTPUT);
+    auto swdclk = &io::getGPIO<SWDCLK>(io::GPIO::Direction::OUTPUT);
+
+    // ADC reset pins
+    // TODO: Name them better according to which ADC setup they are connected to
+    auto adcNrst1 = &io::getGPIO<ADC_1_NRST>(io::GPIO::Direction::OUTPUT);
+    auto adcNrst2 = &io::getGPIO<ADC_2_NRST>(io::GPIO::Direction::OUTPUT);
+
+    // TODO: Name them better according to which ADC setup they are connected to
+    auto dacOut1 = &io::getGPIO<DAC_OUT_1>(io::GPIO::Direction::INPUT);
+    auto dacOut2 = &io::getGPIO<DAC_OUT_2>(io::GPIO::Direction::INPUT);
+
+    // TODO: Name them better according to which ADC setup they are connected to
+    auto selfTestEnable1 = &io::getGPIO<SELF_TEST_ENABLE_1>(io::GPIO::Direction::OUTPUT);
+    auto selfTestEnable2 = &io::getGPIO<SELF_TEST_ENABLE_2>(io::GPIO::Direction::OUTPUT);
+
+    // Set up each chip select pin for the brake and throttle
     brakeDevices[0] = &io::getGPIO<BRAKE_0>(io::GPIO::Direction::OUTPUT);
     brakeDevices[0]->writePin(io::GPIO::State::HIGH);
     brakeDevices[1] = &io::getGPIO<BRAKE_1>(io::GPIO::Direction::OUTPUT);
@@ -80,6 +114,8 @@ int main() {
     // Initialize the HIB object to begin processing data
     auto hib = HIB::HIB(throttle, brake);
 
+    // Check the ready pins
+
     // Initialize CAN
     io::CAN& can = io::getCAN<CAN_TX, CAN_RX>(true);
 
@@ -105,9 +141,9 @@ int main() {
         // Do not process the throttle unless the bike is set up
         if (start->readPin() == io::GPIO::State::LOW ||
             throttleSwitch->readPin() == io::GPIO::State::LOW ||
-            forwardEnable0->readPin() == io::GPIO::State::LOW ||
             forwardEnable1->readPin() == io::GPIO::State::LOW ||
-            forwardEnable2->readPin() == io::GPIO::State::LOW) {
+            forwardEnable2->readPin() == io::GPIO::State::LOW ||
+            forwardEnable3->readPin() == io::GPIO::State::LOW) {
             continue;
         }
 

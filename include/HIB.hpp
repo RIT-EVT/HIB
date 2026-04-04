@@ -19,21 +19,78 @@ namespace HIB {
 #define VOLTAGE_DEADZONE 475
 
 /**
- * Start Switch
+ * Start Switch Pin
  */
 #define START io::Pin::PB_1
 
 /**
- * Throttle Switch
+ * Throttle Switch Pin
  */
 #define THROTTLE_SWITCH io::Pin::PB_2
 
 /**
- * Forward Enable
+ * Forward Enable Pins
  */
-#define FORWARD_ENABLE_0 io::Pin::PB_4
-#define FORWARD_ENABLE_1 io::Pin::PB_5
-#define FORWARD_ENABLE_2 io::Pin::PB_6
+#define FORWARD_ENABLE_1 io::Pin::PB_4
+#define FORWARD_ENABLE_2 io::Pin::PB_5
+#define FORWARD_ENABLE_3 io::Pin::PB_6
+
+/**
+ * Short circuit checking pins that should remain high unless there is a short
+ */
+#define NSHORT_1 io::Pin::PA_0
+#define NSHORT_2 io::Pin::PA_1
+
+/**
+ * Open circuit checking pins that should remain high unless the circuit is open
+ */
+#define NOPEN_1 io::Pin::PA_8
+#define NOPEN_2 io::Pin::PA_9
+
+/**
+ * Self test DAC output pins
+ */
+#define DAC_OUT_1 io::Pin::PA_4
+#define DAC_OUT_2 io::Pin::PA_5
+
+/**
+ * Enable pins for each self test loop
+ */
+#define SELF_TEST_ENABLE_1 io::Pin::PA_6
+#define SELF_TEST_ENABLE_2 io::Pin::PA_7
+
+/**
+ * JTAG serial wire pins
+ */
+#define SWDIO io::Pin::PA_13 // Serial wire debug input/output
+#define SWO io::Pin::PB_3 // Serial wire output
+#define SWDCLK io::Pin::PA_14 // Serial wire clock
+
+/**
+ * ADC reset pins
+ */
+#define ADC_1_NRST io::Pin::PA_15
+#define ADC_2_NRST io::Pin::PB_0
+
+/**
+ * Debug LED pins
+ */
+#define DEBUG_LED_1 io::Pin::PC_6
+#define DEBUG_LED_2 io::Pin::PC_13
+
+/**
+ * Throttle ADC ready pins
+ */
+#define THROTTLE_RVS0 io::Pin::PC_3
+#define THROTTLE_RVS1 io::Pin::PC_4
+#define THROTTLE_RVS2 io::Pin::PC_5
+
+/**
+ * Brake ADC ready pins
+ */
+#define BRAKE_RVS0 io::Pin::PC_0
+#define BRAKE_RVS1 io::Pin::PC_1
+#define BRAKE_RVS2 io::Pin::PC_2
 
 constexpr size_t payloadLength = 6;
 
@@ -81,8 +138,14 @@ public:
     } hibPayload;
 
 private:
+    /**
+     * Reads the 0V-12V signal coming from the throttle potentiometer
+     */
     void readThrottleVoltage();
 
+    /**
+     * Do nothing because there is no brake setup yet
+     */
     void readBrakeVoltage();
 
     RedundantADC& throttle;

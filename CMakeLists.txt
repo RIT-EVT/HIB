@@ -64,6 +64,7 @@ add_library(${PROJECT_NAME} STATIC
         include/dev/ADS8689IPWR.hpp
         include/dev/RedundantADC.hpp
         include/HIB.hpp
+        targets/self_test/main.cpp
 )
 
 # Add sources
