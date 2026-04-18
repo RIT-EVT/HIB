@@ -95,32 +95,32 @@ namespace HIB {
 constexpr size_t payloadLength = 6;
 
 typedef struct {
-    io::GPIO* throttleSwitch = null;
-    io::GPIO* start = null;
-    io::GPIO* forwardEnable1 = null;
-    io::GPIO* forwardEnable2 = null;
-    io::GPIO* forwardEnable3 = null;
-    io::GPIO* nshort1 = null;
-    io::GPIO* nshort2 = null;
-    io::GPIO* nopen1 = null;
-    io::GPIO* nopen2 = null;
-    io::GPIO* throttleRvs0 = null;
-    io::GPIO* throttleRvs1 = null;
-    io::GPIO* throttleRvs2 = null;
-    io::GPIO* brakeRvs0 = null;
-    io::GPIO* brakeRvs1 = null;
-    io::GPIO* brakeRvs2 = null;
-    io::GPIO* debugLed1 = null;
-    io::GPIO* debugLed2 = null;
-    io::GPIO* swdio = null;
-    io::GPIO* swo = null;
-    io::GPIO* swdclk = null;
-    io::GPIO* adcNrst1 = null;
-    io::GPIO* adcNrst2 = null;
-    io::GPIO* dacOut1 = null;
-    io::GPIO* dacOut2 = null;
-    io::GPIO* selfTestEnable1 = null;
-    io::GPIO* selfTestEnable2 = null;
+    io::GPIO* throttleSwitch = nullptr;
+    io::GPIO* start = nullptr;
+    io::GPIO* forwardEnable1 = nullptr;
+    io::GPIO* forwardEnable2 = nullptr;
+    io::GPIO* forwardEnable3 = nullptr;
+    io::GPIO* nshort1 = nullptr;
+    io::GPIO* nshort2 = nullptr;
+    io::GPIO* nopen1 = nullptr;
+    io::GPIO* nopen2 = nullptr;
+    io::GPIO* throttleRvs0 = nullptr;
+    io::GPIO* throttleRvs1 = nullptr;
+    io::GPIO* throttleRvs2 = nullptr;
+    io::GPIO* brakeRvs0 = nullptr;
+    io::GPIO* brakeRvs1 = nullptr;
+    io::GPIO* brakeRvs2 = nullptr;
+    io::GPIO* debugLed1 = nullptr;
+    io::GPIO* debugLed2 = nullptr;
+    io::GPIO* swdio = nullptr;
+    io::GPIO* swo = nullptr;
+    io::GPIO* swdclk = nullptr;
+    io::GPIO* adcNrst1 = nullptr;
+    io::GPIO* adcNrst2 = nullptr;
+    io::GPIO* dacOut1 = nullptr;
+    io::GPIO* dacOut2 = nullptr;
+    io::GPIO* selfTestEnable1 = nullptr;
+    io::GPIO* selfTestEnable2 = nullptr;
 } HibPinMap;
 
 /**
