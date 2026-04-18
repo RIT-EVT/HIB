@@ -28,7 +28,7 @@ int main() {
     core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
 
     // Setup the pin mapping
-    HIB::HibPinMap pinMap {
+    HIB::HibPinMap pinMap{
         // Setup GPIO pins for the throttle switch, start, and forward enable to check before
         // processing and sending anything to the VCU. (If any of these are false, then the
         // throttle should be cut)
@@ -143,11 +143,7 @@ int main() {
     // Read voltage and errors and send them through the CAN bus
     while (true) {
         // Do not process the throttle unless the bike is set up
-        if (hib.pinMap.start->readPin() == io::GPIO::State::LOW ||
-            hib.pinMap.throttleSwitch->readPin() == io::GPIO::State::LOW ||
-            hib.pinMap.forwardEnable1->readPin() == io::GPIO::State::LOW ||
-            hib.pinMap.forwardEnable2->readPin() == io::GPIO::State::LOW ||
-            hib.pinMap.forwardEnable3->readPin() == io::GPIO::State::LOW) {
+        if (hib.pinMap.start->readPin() == io::GPIO::State::LOW || hib.pinMap.throttleSwitch->readPin() == io::GPIO::State::LOW || hib.pinMap.forwardEnable1->readPin() == io::GPIO::State::LOW || hib.pinMap.forwardEnable2->readPin() == io::GPIO::State::LOW || hib.pinMap.forwardEnable3->readPin() == io::GPIO::State::LOW) {
             continue;
         }
 

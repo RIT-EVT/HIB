@@ -38,7 +38,7 @@ int main() {
     // Setup GPIO pins for the throttle switch, start, and forward enable to check before
     // processing and sending anything to the VCU. (If any of these are false, then the
     // throttle should be cut)
-    auto throttleSwitch =  &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
+    auto throttleSwitch = &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
     auto start = &io::getGPIO<START>(io::GPIO::Direction::INPUT);
     auto forwardEnable0 = &io::getGPIO<FORWARD_ENABLE_1>(io::GPIO::Direction::INPUT);
     auto forwardEnable1 = &io::getGPIO<FORWARD_ENABLE_2>(io::GPIO::Direction::INPUT);
@@ -103,11 +103,7 @@ int main() {
     // Read voltage and errors and send them through the CAN bus
     while (true) {
         // Do not process the throttle unless the bike is set up
-        if (start->readPin() == io::GPIO::State::LOW ||
-            throttleSwitch->readPin() == io::GPIO::State::LOW ||
-            forwardEnable0->readPin() == io::GPIO::State::LOW ||
-            forwardEnable1->readPin() == io::GPIO::State::LOW ||
-            forwardEnable2->readPin() == io::GPIO::State::LOW) {
+        if (start->readPin() == io::GPIO::State::LOW || throttleSwitch->readPin() == io::GPIO::State::LOW || forwardEnable0->readPin() == io::GPIO::State::LOW || forwardEnable1->readPin() == io::GPIO::State::LOW || forwardEnable2->readPin() == io::GPIO::State::LOW) {
             continue;
         }
 
