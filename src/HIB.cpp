@@ -6,10 +6,11 @@ namespace io = core::io;
 
 namespace HIB {
 
-HIB::HIB(RedundantADC& throttle, RedundantADC& brake)
-    : throttle(throttle), brake(brake) {
+HIB::HIB(RedundantADC& throttle, RedundantADC& brake, HibPinMap pinMap)
+    : pinMap(pinMap), throttle(throttle), brake(brake) {}
 
-}
+HIB::HIB(RedundantADC& throttle, RedundantADC& brake)
+    : throttle(throttle), brake(brake) {}
 
 // Reads the 2 sets of 3 ADCs and processes their errors while packaging them for CAN
 io::CANMessage HIB::process() {

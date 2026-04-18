@@ -40,11 +40,11 @@ int main() {
     // throttle should be cut)
     auto throttleSwitch =  &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
     auto start = &io::getGPIO<START>(io::GPIO::Direction::INPUT);
-    auto forwardEnable0 = &io::getGPIO<FORWARD_ENABLE_0>(io::GPIO::Direction::INPUT);
-    auto forwardEnable1 = &io::getGPIO<FORWARD_ENABLE_1>(io::GPIO::Direction::INPUT);
-    auto forwardEnable2 = &io::getGPIO<FORWARD_ENABLE_2>(io::GPIO::Direction::INPUT);
+    auto forwardEnable0 = &io::getGPIO<FORWARD_ENABLE_1>(io::GPIO::Direction::INPUT);
+    auto forwardEnable1 = &io::getGPIO<FORWARD_ENABLE_2>(io::GPIO::Direction::INPUT);
+    auto forwardEnable2 = &io::getGPIO<FORWARD_ENABLE_3>(io::GPIO::Direction::INPUT);
 
-    // Set up each chip select pink
+    // Set up each chip select pins
     brakeDevices[0] = &io::getGPIO<BRAKE_0>(io::GPIO::Direction::OUTPUT);
     brakeDevices[0]->writePin(io::GPIO::State::HIGH);
     brakeDevices[1] = &io::getGPIO<BRAKE_1>(io::GPIO::Direction::OUTPUT);

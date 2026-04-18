@@ -94,6 +94,35 @@ namespace HIB {
 
 constexpr size_t payloadLength = 6;
 
+typedef struct {
+    io::GPIO* throttleSwitch = null;
+    io::GPIO* start = null;
+    io::GPIO* forwardEnable1 = null;
+    io::GPIO* forwardEnable2 = null;
+    io::GPIO* forwardEnable3 = null;
+    io::GPIO* nshort1 = null;
+    io::GPIO* nshort2 = null;
+    io::GPIO* nopen1 = null;
+    io::GPIO* nopen2 = null;
+    io::GPIO* throttleRvs0 = null;
+    io::GPIO* throttleRvs1 = null;
+    io::GPIO* throttleRvs2 = null;
+    io::GPIO* brakeRvs0 = null;
+    io::GPIO* brakeRvs1 = null;
+    io::GPIO* brakeRvs2 = null;
+    io::GPIO* debugLed1 = null;
+    io::GPIO* debugLed2 = null;
+    io::GPIO* swdio = null;
+    io::GPIO* swo = null;
+    io::GPIO* swdclk = null;
+    io::GPIO* adcNrst1 = null;
+    io::GPIO* adcNrst2 = null;
+    io::GPIO* dacOut1 = null;
+    io::GPIO* dacOut2 = null;
+    io::GPIO* selfTestEnable1 = null;
+    io::GPIO* selfTestEnable2 = null;
+} HibPinMap;
+
 /**
  * The Handlebar Interface Board Takes in a 0.0 to 12.0 volt signal from the throttle and brake
  * which it then converts to a 16 bit value through its "double-triple" ADC setup. It then sends
@@ -109,6 +138,8 @@ constexpr size_t payloadLength = 6;
  */
 class HIB {
 public:
+    HIB(RedundantADC& throttle, RedundantADC& brake, HibPinMap pinMap);
+
     HIB(RedundantADC& throttle, RedundantADC& brake);
 
     /**
@@ -137,6 +168,7 @@ public:
         uint8_t brakeError = 0;
     } hibPayload;
 
+    HibPinMap pinMap = null;
 private:
     /**
      * Reads the 0V-12V signal coming from the throttle potentiometer
