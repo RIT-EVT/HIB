@@ -168,7 +168,7 @@ public:
         uint8_t brakeError = 0;
     } hibPayload;
 
-    HibPinMap pinMap = null;
+    HibPinMap pinMap;
 private:
     /**
      * Reads the 0V-12V signal coming from the throttle potentiometer
