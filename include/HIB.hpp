@@ -63,8 +63,8 @@ namespace HIB {
  * JTAG serial wire pins
  */
 #define SWDIO io::Pin::PA_13 // Serial wire debug input/output
-#define SWO io::Pin::PB_3 // Serial wire output
-#define SWDCLK io::Pin::PA_14 // Serial wire clock
+#define SWO io::Pin::PB_3    // Serial wire output
+#define SWDCLK io::Pin::PA_14// Serial wire clock
 
 /**
  * ADC reset pins
@@ -169,6 +169,7 @@ public:
     } hibPayload;
 
     HibPinMap pinMap;
+
 private:
     /**
      * Reads the 0V-12V signal coming from the throttle potentiometer
