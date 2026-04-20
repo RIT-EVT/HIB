@@ -1,15 +1,30 @@
-#pragma once
+#ifndef REDUNDANT_ADC_
+#define REDUNDANT_ADC_
 
-#include <EVT/io/ADC.hpp>
-
-namespace IO = EVT::core::IO;
-
-namespace HIB::DEV {
+#include <dev/ADS8689IPWR.hpp>
 
 /**
- * This class allows processing readings from redundant ADCs and checking for errors
+ * Defined limits for the amount of times an error can occur before a restart is required
  */
+#define COMPARISON_ERROR_COUNT 1
+#define PRECISION_MARGIN_ERROR_COUNT 3
+#define ACCEPTABLE_MARGIN_ERROR_COUNT 5
 
+/**
+ * CAN TX and RX pins
+ */
+#define CAN_TX io::Pin::PA_12
+#define CAN_RX io::Pin::PA_11
+
+namespace io = core::io;
+
+namespace HIB {
+/**
+ * An object that takes in 3 different ADS8689IPWR objects to read out and compare their output
+ * voltages. It compares and contrasts these voltages against their average to find the marginal
+ * error for each of them. If the margin error is a little high, too high, or completely off in
+ * one or more of the devices then it will return a corresponding error the HIB object.
+ */
 class RedundantADC {
 public:
     /**
@@ -33,7 +48,7 @@ public:
      * @param[in] adc1 The second ADC instance.
      * @param[in] adc2 The third ADC instance.
      */
-    RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2);
+    RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2);
 
     /**
      * Read voltage readings from the ADCs and check for redundancy.
@@ -41,19 +56,15 @@ public:
      * This function reads values from three ADCs and checks for redundancy.
      *
      * @param[out] return_val Reference to the variable to store the value read from the ADCs
-     * @param[in] val2 Reference to the variable to store the value read from the second ADC.
-     * @param[in] val3 Reference to the variable to store the value read from the third ADC.
      * @return RedundantADC::Status The status of the processing.
      */
-    RedundantADC::Status readVoltage(uint32_t& return_val);
+    Status read(uint16_t& return_val) const;
 
 private:
-    /** Reference to the first ADC. */
-    IO::ADC& adc0;
-    /** Reference to the second ADC. */
-    IO::ADC& adc1;
-    /** Reference to the third ADC. */
-    IO::ADC& adc2;
+    ADS8689IPWR& adc0;
+    ADS8689IPWR& adc1;
+    ADS8689IPWR& adc2;
 };
 
-}// namespace HIB::DEV
+}// namespace HIB
+#endif

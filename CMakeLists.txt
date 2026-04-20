@@ -11,9 +11,9 @@ if(EVT_CORE_LOG_ENABLE)
 endif()
 
 # Handle selection of the target device
-option(TARGET_DEV "Target device" "STM32F334x8")
+option(TARGET_DEV "Target device" "STM32F446xx")
 if(NOT TARGET_DEV)
-    set(TARGET_DEV "STM32F334x8")
+    set(TARGET_DEV "STM32F446xx")
 endif()
 
 if(TARGET_DEV STREQUAL "STM32F302x8")
@@ -22,6 +22,9 @@ if(TARGET_DEV STREQUAL "STM32F302x8")
 elseif(TARGET_DEV STREQUAL "STM32F334x8")
     add_compile_definitions(STM32F334x8)
     add_compile_definitions(STM32F3xx)
+elseif(TARGET_DEV STREQUAL "STM32F446xx")
+    add_compile_definitions(STM32F446xx)
+    add_compile_definitions(STM32F4xx)
 else()
     message(FATAL_ERROR "The target device is not supported")
 endif()
@@ -57,12 +60,18 @@ project(${BOARD_LIB_NAME}
         LANGUAGES CXX C
         )
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(${PROJECT_NAME} STATIC
+        include/dev/ADS8689IPWR.hpp
+        include/dev/RedundantADC.hpp
+        include/HIB.hpp
+        targets/self_test/main.cpp
+)
 
 # Add sources
 target_sources(${PROJECT_NAME} PRIVATE
         src/HIB.cpp
         src/dev/RedundantADC.cpp
+        src/dev/ADS8689IPWR.cpp
         )
 
 ###############################################################################

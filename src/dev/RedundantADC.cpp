@@ -1,37 +1,49 @@
-#include <EVT/io/ADC.hpp>
 #include <cmath>
+#include <core/utils/log.hpp>
+
+#include <dev/ADS8689IPWR.hpp>
 #include <dev/RedundantADC.hpp>
 
-namespace IO = EVT::core::IO;
+namespace io = core::io;
+using namespace HIB;
 
-constexpr uint32_t LOW_MARGIN = 1;
-constexpr uint32_t HIGH_MARGIN = 5;
+/* Percentage differences
+ * Values are approximately 1% and 5% of 12288 Mv, but "approximately" is a stretch.
+ * These can be altered as needed in the future after stress testing the ADCs and finding out
+ * how they perform while running on the bike
+ */
+constexpr uint16_t LOW_MARGIN = 400;
+constexpr uint16_t HIGH_MARGIN = 800;
 
-namespace HIB::DEV {
+RedundantADC::RedundantADC(ADS8689IPWR& adc0, ADS8689IPWR& adc1, ADS8689IPWR& adc2)
+    : adc0(adc0), adc1(adc1), adc2(adc2) {}
 
-RedundantADC::RedundantADC(IO::ADC& adc0, IO::ADC& adc1, IO::ADC& adc2) : adc0(adc0), adc1(adc1), adc2(adc2) {}
+RedundantADC::Status RedundantADC::read(uint16_t& return_val) const {
+    // Read in the millivoltage of each ADC
+    int16_t adcValues[3] = {0};
+    adcValues[0] = static_cast<int16_t>(adc0.readVoltage());
+    adcValues[1] = static_cast<int16_t>(adc1.readVoltage());
+    adcValues[2] = static_cast<int16_t>(adc2.readVoltage());
 
-RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
-    // Read ADC values
-    int32_t adcValues[3];
-    adcValues[0] = static_cast<int32_t>(adc0.read() * 1000);
-    adcValues[1] = static_cast<int32_t>(adc1.read() * 1000);
-    adcValues[2] = static_cast<int32_t>(adc2.read() * 1000);
+    // Calculate average of all ADC millivoltages
+    const auto average = static_cast<uint16_t>((adcValues[0] + adcValues[1] + adcValues[2]) / 3);
 
-    // Calculate average of all ADC values
-    int32_t average = (adcValues[0] + adcValues[1] + adcValues[2]) / 3;
+    // Check for deviation errors
+    const bool adc0underLow = static_cast<uint16_t>(std::abs(adcValues[0] - average)) < LOW_MARGIN;
+    const bool adc1underLow = static_cast<uint16_t>(std::abs(adcValues[1] - average)) < LOW_MARGIN;
+    const bool adc2underLow = static_cast<uint16_t>(std::abs(adcValues[2] - average)) < LOW_MARGIN;
 
-    // Check for margin error
-    bool adc0underLow = (std::abs(adcValues[0] - average) * 100 / average) < LOW_MARGIN;
-    bool adc1underLow = (std::abs(adcValues[1] - average) * 100 / average) < LOW_MARGIN;
-    bool adc2underLow = (std::abs(adcValues[2] - average) * 100 / average) < LOW_MARGIN;
-
-    bool adc0underHigh = (std::abs(adcValues[0] - average) * 100 / average) < HIGH_MARGIN;
-    bool adc1underHigh = (std::abs(adcValues[1] - average) * 100 / average) < HIGH_MARGIN;
-    bool adc2underHigh = (std::abs(adcValues[2] - average) * 100 / average) < HIGH_MARGIN;
+    const bool adc0underHigh = static_cast<uint16_t>(std::abs(adcValues[0] - average)) < HIGH_MARGIN;
+    const bool adc1underHigh = static_cast<uint16_t>(std::abs(adcValues[1] - average)) < HIGH_MARGIN;
+    const bool adc2underHigh = static_cast<uint16_t>(std::abs(adcValues[2] - average)) < HIGH_MARGIN;
 
     // Check for redundancy
-    bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
+    const bool allUnderLow = adc0underLow && adc1underLow && adc2underLow;
+
+    if (average == 0) {
+        return_val = average;
+        return RedundantADC::Status::OK;
+    }
 
     if (allUnderLow) {
         return_val = average;
@@ -63,7 +75,6 @@ RedundantADC::Status RedundantADC::readVoltage(uint32_t& return_val) {
     }
 
     return_val = 0;
+
     return RedundantADC::Status::COMPARISON_ERROR;
 }
-
-}// namespace HIB::DEV

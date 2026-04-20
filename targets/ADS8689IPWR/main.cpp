@@ -1,13 +1,14 @@
 /**
- * RedundantADC test target. Run this on the board to test the functionality of the RedundantADC
- * class and the physical setup of the two redundant adc setups on thd board
+ * Test target for the ASD8689IPWR Analog to Digital converter. Use this if you just need to
+ * verify that they are properly taking in and reading out an expected voltage
  */
-#include <HIB.hpp>
-#include <core/io/ADC.hpp>
 #include <core/io/GPIO.hpp>
+#include <core/io/SPI.hpp>
+#include <core/io/UART.hpp>
 #include <core/manager.hpp>
 #include <core/utils/log.hpp>
-#include <dev/RedundantADC.hpp>
+#include <core/utils/time.hpp>
+#include <dev/ADS8689IPWR.hpp>
 
 namespace io = core::io;
 namespace time = core::time;
@@ -55,41 +56,17 @@ int main() {
     auto brakeAdc2 = HIB::ADS8689IPWR(spiBrake, 1);
     auto brakeAdc3 = HIB::ADS8689IPWR(spiBrake, 2);
 
-    // Initialize the two redundant ADCs
-    auto throttle = HIB::RedundantADC(throttleAdc1, throttleAdc2, throttleAdc3);
-    auto brake = HIB::RedundantADC(brakeAdc1, brakeAdc2, brakeAdc3);
-
-    // Declare voltage variables
-    uint16_t throttleVoltage = 0;
-    uint16_t brakeVoltage = 0;
-
+    // Test each adc one by one on loop
     while (true) {
-        // Process ADC values
-        HIB::RedundantADC::Status throttleStatus = throttle.read(throttleVoltage);
-        HIB::RedundantADC::Status brakeStatus = brake.read(brakeVoltage);
-
-        //check ADC Statuses
-        if (throttleStatus == HIB::RedundantADC::Status::OK) {
-            LOG_INFO("Throttle Average Voltage Reading: %dV\r\n", throttleVoltage);
-        } else if (throttleStatus == HIB::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
-            LOG_INFO("Throttle Precision error detected\r\n");
-        } else if (throttleStatus == HIB::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
-            LOG_INFO("Throttle Margin error detected\r\n");
-        } else if (throttleStatus == HIB::RedundantADC::Status::COMPARISON_ERROR) {
-            LOG_INFO("Throttle Comparison error detected\r\n");
-        }
-
-        //check ADC Statuses
-        if (brakeStatus == HIB::RedundantADC::Status::OK) {
-            LOG_INFO("Brake Average Voltage Reading: %dV\r\n", brakeVoltage);
-        } else if (brakeStatus == HIB::RedundantADC::Status::PRECISION_MARGIN_EXCEEDED) {
-            LOG_INFO("Brake Precision error detected\r\n");
-        } else if (brakeStatus == HIB::RedundantADC::Status::ACCEPTABLE_MARGIN_EXCEEDED) {
-            LOG_INFO("Brake Margin error detected\r\n");
-        } else if (brakeStatus == HIB::RedundantADC::Status::COMPARISON_ERROR) {
-            LOG_INFO("Brake Comparison error detected\r\n\r\n");
-        }
+        LOG_INFO("Throttle ADC1: %dV\r\n", throttleAdc1.readVoltage());
+        LOG_INFO("Throttle ADC2: %dV\r\n", throttleAdc2.readVoltage());
+        LOG_INFO("Throttle ADC3: %dV\r\n", throttleAdc3.readVoltage());
+        LOG_INFO("Brake ADC1: %dV\r\n", brakeAdc1.readVoltage());
+        LOG_INFO("Brake ADC2: %dV\r\n", brakeAdc2.readVoltage());
+        LOG_INFO("Brake ADC3: %dV\r\n\r\n", brakeAdc3.readVoltage());
 
         time::wait(1000);
     }
+
+    return 0;
 }
