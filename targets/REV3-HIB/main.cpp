@@ -35,15 +35,6 @@ int main() {
     core::log::LOGGER.setUART(&uart);
     core::log::LOGGER.setLogLevel(core::log::Logger::LogLevel::INFO);
 
-    // Setup GPIO pins for the throttle switch, start, and forward enable to check before
-    // processing and sending anything to the VCU. (If any of these are false, then the
-    // throttle should be cut)
-    auto throttleSwitch = &io::getGPIO<THROTTLE_SWITCH>(io::GPIO::Direction::INPUT);
-    auto start = &io::getGPIO<START>(io::GPIO::Direction::INPUT);
-    auto forwardEnable0 = &io::getGPIO<FORWARD_ENABLE_1>(io::GPIO::Direction::INPUT);
-    auto forwardEnable1 = &io::getGPIO<FORWARD_ENABLE_2>(io::GPIO::Direction::INPUT);
-    auto forwardEnable2 = &io::getGPIO<FORWARD_ENABLE_3>(io::GPIO::Direction::INPUT);
-
     // Set up each chip select pins
     brakeDevices[0] = &io::getGPIO<BRAKE_0>(io::GPIO::Direction::OUTPUT);
     brakeDevices[0]->writePin(io::GPIO::State::HIGH);
@@ -102,11 +93,6 @@ int main() {
 
     // Read voltage and errors and send them through the CAN bus
     while (true) {
-        // Do not process the throttle unless the bike is set up
-        if (start->readPin() == io::GPIO::State::LOW || throttleSwitch->readPin() == io::GPIO::State::LOW || forwardEnable0->readPin() == io::GPIO::State::LOW || forwardEnable1->readPin() == io::GPIO::State::LOW || forwardEnable2->readPin() == io::GPIO::State::LOW) {
-            continue;
-        }
-
         // Process the voltage
         transmit_message = hib.process();
 
@@ -117,18 +103,18 @@ int main() {
         }
 
         // Uncomment to print results through UART when a P-CAN dongle is unavailable
-        // io::CANMessage message;
-        // auto status = can.receive(&message);
-        // uint8_t* payload = message.getPayload();
-        // LOG_INFO("Throttle Voltage: %imV\r\n"
-        //          "Brake Voltage: %imV\r\n"
-        //          "Throttle Error Information: %x\r\n",
-        //          "Brake Error Information: %x\r\n",
-        //          (payload[0] << 8) + payload[1],
-        //          (payload[2] << 8) + payload[3],
-        //          payload[4],
-        //          payload[5]);
-        // time::wait(5000);
+        io::CANMessage message;
+        auto status = can.receive(&message);
+        uint8_t* payload = message.getPayload();
+        LOG_INFO("Throttle Voltage: %imV\r\n"
+                 "Brake Voltage: %imV\r\n"
+                 "Throttle Error Information: %x\r\n",
+                 "Brake Error Information: %x\r\n",
+                 (payload[0] << 8) + payload[1],
+                 (payload[2] << 8) + payload[3],
+                 payload[4],
+                 payload[5]);
+        time::wait(5000);
     }
 
     return -1;

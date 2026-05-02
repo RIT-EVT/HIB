@@ -1,0 +1,120 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "libs/EVT-core/cmake/evt-core_clang-format.cmake:19 (find_program)"
+      - "libs/EVT-core/CMakeLists.txt:15 (include)"
+    mode: "program"
+    variable: "CLANG_FORMAT"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "clang-format"
+    candidate_directories:
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/"
+      - "C:/Windows/System32/"
+      - "C:/Windows/"
+      - "C:/Windows/System32/wbem/"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/"
+      - "C:/Windows/System32/OpenSSH/"
+      - "C:/Program Files/Git/cmd/"
+      - "C:/Program Files/PuTTY/"
+      - "C:/Program Files/MATLAB/R2025a/bin/"
+      - "C:/Program Files/dotnet/"
+      - "C:/Program Files/CMake/bin/"
+      - "C:/EVT/"
+      - "C:/Program Files (x86)/Vector CANdb++ 3.1/Exec32/"
+      - "C:/Users/Anonymous/AppData/Local/Microsoft/WindowsApps/"
+      - "C:/Program Files/JetBrains/CLion 2025.3.2/bin/"
+      - "C:/Users/Anonymous/.dotnet/tools/"
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/bin/"
+    searched_directories:
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/clang-format.com"
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/clang-format.exe"
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/clang-format"
+      - "C:/Windows/System32/clang-format.com"
+      - "C:/Windows/System32/clang-format.exe"
+      - "C:/Windows/System32/clang-format"
+      - "C:/Windows/clang-format.com"
+      - "C:/Windows/clang-format.exe"
+      - "C:/Windows/clang-format"
+      - "C:/Windows/System32/wbem/clang-format.com"
+      - "C:/Windows/System32/wbem/clang-format.exe"
+      - "C:/Windows/System32/wbem/clang-format"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/clang-format.com"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/clang-format.exe"
+      - "C:/Windows/System32/WindowsPowerShell/v1.0/clang-format"
+      - "C:/Windows/System32/OpenSSH/clang-format.com"
+      - "C:/Windows/System32/OpenSSH/clang-format.exe"
+      - "C:/Windows/System32/OpenSSH/clang-format"
+      - "C:/Program Files/Git/cmd/clang-format.com"
+      - "C:/Program Files/Git/cmd/clang-format.exe"
+      - "C:/Program Files/Git/cmd/clang-format"
+      - "C:/Program Files/PuTTY/clang-format.com"
+      - "C:/Program Files/PuTTY/clang-format.exe"
+      - "C:/Program Files/PuTTY/clang-format"
+      - "C:/Program Files/MATLAB/R2025a/bin/clang-format.com"
+      - "C:/Program Files/MATLAB/R2025a/bin/clang-format.exe"
+      - "C:/Program Files/MATLAB/R2025a/bin/clang-format"
+      - "C:/Program Files/dotnet/clang-format.com"
+      - "C:/Program Files/dotnet/clang-format.exe"
+      - "C:/Program Files/dotnet/clang-format"
+      - "C:/Program Files/CMake/bin/clang-format.com"
+      - "C:/Program Files/CMake/bin/clang-format.exe"
+      - "C:/Program Files/CMake/bin/clang-format"
+      - "C:/EVT/clang-format.com"
+      - "C:/EVT/clang-format.exe"
+      - "C:/EVT/clang-format"
+      - "C:/Program Files (x86)/Vector CANdb++ 3.1/Exec32/clang-format.com"
+      - "C:/Program Files (x86)/Vector CANdb++ 3.1/Exec32/clang-format.exe"
+      - "C:/Program Files (x86)/Vector CANdb++ 3.1/Exec32/clang-format"
+      - "C:/Users/Anonymous/AppData/Local/Microsoft/WindowsApps/clang-format.com"
+      - "C:/Users/Anonymous/AppData/Local/Microsoft/WindowsApps/clang-format.exe"
+      - "C:/Users/Anonymous/AppData/Local/Microsoft/WindowsApps/clang-format"
+      - "C:/Program Files/JetBrains/CLion 2025.3.2/bin/clang-format.com"
+      - "C:/Program Files/JetBrains/CLion 2025.3.2/bin/clang-format.exe"
+      - "C:/Program Files/JetBrains/CLion 2025.3.2/bin/clang-format"
+      - "C:/Users/Anonymous/.dotnet/tools/clang-format.com"
+      - "C:/Users/Anonymous/.dotnet/tools/clang-format.exe"
+      - "C:/Users/Anonymous/.dotnet/tools/clang-format"
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/bin/clang-format.com"
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/bin/clang-format.exe"
+      - "C:/Users/Anonymous/AppData/Local/Programs/Microsoft VS Code/bin/clang-format"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "C:\\Users\\Anonymous\\AppData\\Local\\Programs\\Microsoft VS Code"
+        - "C:\\WINDOWS\\system32"
+        - "C:\\WINDOWS"
+        - "C:\\WINDOWS\\System32\\Wbem"
+        - "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\"
+        - "C:\\WINDOWS\\System32\\OpenSSH\\"
+        - "C:\\Program Files\\Git\\cmd"
+        - "C:\\Program Files\\PuTTY\\"
+        - "C:\\Program Files\\MATLAB\\R2025a\\bin"
+        - "C:\\Program Files\\dotnet\\"
+        - "C:\\Program Files\\CMake\\bin"
+        - "C:\\EVT"
+        - "C:\\Program Files (x86)\\Vector CANdb++ 3.1\\Exec32"
+        - "C:\\Users\\Anonymous\\AppData\\Local\\Microsoft\\WindowsApps"
+        - "C:\\Program Files\\JetBrains\\CLion 2025.3.2\\bin"
+        - "C:\\Users\\Anonymous\\.dotnet\\tools"
+        - "C:\\Users\\Anonymous\\AppData\\Local\\Programs\\Microsoft VS Code\\bin"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/CMake/share/cmake-4.2/Modules/CMakeDetermineSystem.cmake:207 (message)"
+      - "libs/EVT-core/CMakeLists.txt:22 (project)"
+    message: |
+      The target system is: Generic -  - arm
+      The host system is: Windows - 10.0.26200 - AMD64
+...
