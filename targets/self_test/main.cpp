@@ -143,7 +143,11 @@ int main() {
     // Read voltage and errors and send them through the CAN bus
     while (true) {
         // Do not process the throttle unless the bike is set up
-        if (hib.pinMap.start->readPin() == io::GPIO::State::LOW || hib.pinMap.throttleSwitch->readPin() == io::GPIO::State::LOW || hib.pinMap.forwardEnable1->readPin() == io::GPIO::State::LOW || hib.pinMap.forwardEnable2->readPin() == io::GPIO::State::LOW || hib.pinMap.forwardEnable3->readPin() == io::GPIO::State::LOW) {
+        if (hib.pinMap.start->readPin() == io::GPIO::State::LOW 
+			|| hib.pinMap.throttleSwitch->readPin() == io::GPIO::State::LOW 
+			|| hib.pinMap.forwardEnable1->readPin() == io::GPIO::State::LOW 
+			|| hib.pinMap.forwardEnable2->readPin() == io::GPIO::State::LOW 
+			|| hib.pinMap.forwardEnable3->readPin() == io::GPIO::State::LOW) {
             continue;
         }
 
