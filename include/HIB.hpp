@@ -1,8 +1,8 @@
 #ifndef HIB_
 #define HIB_
 
-#include "core/io/types/CANMessage.hpp"
 #include <cstddef>
+#include "core/io/types/CANMessage.hpp"
 #include <dev/RedundantADC.hpp>
 
 namespace io = core::io;
@@ -135,12 +135,12 @@ typedef struct {
  *
  * The data after being correctly parsed and checked for errors is then sent through CAN to the
  * VCU for decision-making.
+ *
+ * There is the option to not include a pin map and instead
  */
 class HIB {
 public:
-    HIB(RedundantADC& throttle, RedundantADC& brake, HibPinMap pinMap);
-
-    HIB(RedundantADC& throttle, RedundantADC& brake);
+    HIB(RedundantADC& throttle, RedundantADC& brake, HibPinMap pinMap = HibPinMap(), bool selfTest = false);
 
     /**
      * Reads the voltages and errors from the redundant ADCs and returns a can message containing
@@ -180,6 +180,11 @@ private:
      * Do nothing because there is no brake setup yet
      */
     void readBrakeVoltage();
+
+    bool checkStartupPins();
+    bool checkRunningPins();
+
+    bool selfTest;
 
     RedundantADC& throttle;
     RedundantADC& brake;

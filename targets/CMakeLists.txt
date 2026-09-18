@@ -2,4 +2,3 @@
 add_subdirectory(REV3-HIB)
 add_subdirectory(ADS8689IPWR)
 add_subdirectory(RedundantADC)
-add_subdirectory(self_test)
